@@ -1,14 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add username editing and account deletion functionality to the profile page.
+**Goal:** Implement automated daily AI task generation and mission log updates that trigger at midnight.
 
 **Planned changes:**
-- Add backend function to update username with validation
-- Add backend function to delete user account and all associated data
-- Add username edit interface with input field and save button on profile page
-- Add account deletion button with confirmation dialog on profile page
-- Show success/error feedback using toast notifications
-- Logout and redirect to landing page after account deletion
+- Add a daily timer mechanism that triggers at midnight to automatically generate new AI-recommended tasks
+- Create automated mission log entries at midnight recording daily activity summaries (completed tasks, missions, XP, coins)
+- Add a mission log history view in the frontend displaying all daily log entries
+- Enhance AI task generation to consider user's historical completion patterns and preferences for personalized recommendations
 
-**User-visible outcome:** Users can edit their username directly from the profile page and permanently delete their account with all progress, which will log them out and return them to the landing page.
+**User-visible outcome:** Users will receive fresh AI-generated daily tasks automatically at midnight and can view a mission log history showing their daily progress, completed activities, and rewards earned over time.

@@ -1,6 +1,6 @@
 import { LoginButton } from '../auth/LoginButton';
 import type { AppScreen } from '../../App';
-import { Swords, TrendingUp, Zap, User, Activity, ListChecks } from 'lucide-react';
+import { Swords, TrendingUp, Zap, User, Activity, ListChecks, ScrollText } from 'lucide-react';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,7 +11,8 @@ interface AppLayoutProps {
 export function AppLayout({ children, currentScreen, onNavigate }: AppLayoutProps) {
   const navItems: Array<{ id: AppScreen; label: string; icon: React.ReactNode }> = [
     { id: 'dashboard', label: 'Command Center', icon: <Activity className="h-5 w-5" /> },
-    { id: 'missions', label: 'Mission Log', icon: <Swords className="h-5 w-5" /> },
+    { id: 'missions', label: 'Missions', icon: <Swords className="h-5 w-5" /> },
+    { id: 'missionLog', label: 'Mission Log', icon: <ScrollText className="h-5 w-5" /> },
     { id: 'customTasks', label: 'Custom Tasks', icon: <ListChecks className="h-5 w-5" /> },
     { id: 'stats', label: 'Attributes', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 'skills', label: 'Skill Matrix', icon: <Zap className="h-5 w-5" /> },

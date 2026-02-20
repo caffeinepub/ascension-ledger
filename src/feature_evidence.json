@@ -2,11 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-username-edit-interface-to-the-profilesettingspage-with-an-editable-input-field-save-button-and-success-error-feedback-using-toast-notifications",
-      "featureTitle": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
+      "featureId": "feature-add-a-mission-log-history-view-in-the-frontend-that-displays-all-automated-daily-log-entries-with-date-completed-activities-and-rewards-earned",
+      "featureTitle": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/ProfileSettingsPage.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/content/copy.ts",
+        "frontend/src/pages/MissionLogPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,27 +20,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-account-deletion-button-to-profilesettingspage-with-confirmation-dialog-explaining-that-this-action-is-permanent-and-will-delete-all-progress-then-logout-and-redirect-to-landing-page-after-deletion",
-      "featureTitle": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
-      "files": [
-        "frontend/src/components/profile/AccountDeletionDialog.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/ProfileSettingsPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

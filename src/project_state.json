@@ -1,24 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project with user profile management features including username editing and account deletion",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-username-edit-interface-to-the-profilesettingspage-with-an-editable-input-field-save-button-and-success-error-feedback-using-toast-notifications",
-      "title": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
+      "id": "feature-add-a-mission-log-history-view-in-the-frontend-that-displays-all-automated-daily-log-entries-with-date-completed-activities-and-rewards-earned",
+      "title": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-account-deletion-button-to-profilesettingspage-with-confirmation-dialog-explaining-that-this-action-is-permanent-and-will-delete-all-progress-then-logout-and-redirect-to-landing-page-after-deletion",
-      "title": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -26,34 +18,36 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add option to edit username in profile page",
+      "summary": "AI should automatically add tasks and update mission log daily at 12am",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add option to delete user account in profile page",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+      "summary": "Implement a daily timer mechanism that triggers at midnight (00:00:00 local time) to automatically generate new AI-recommended daily tasks",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-4",
-      "summary": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+      "id": "AR-3",
+      "summary": "Create automated mission log entries at midnight that record daily activity summaries including completed tasks, missions accomplished, XP gained, and coins earned for that day",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Enhance the AI task generation logic to consider user's historical completion patterns, time of day preferences, and previously completed tasks to provide more personalized daily recommendations",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
     }
   ],
-  "projectName": "Add username editing and account deletion to profile page",
+  "projectName": "Cryonex",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

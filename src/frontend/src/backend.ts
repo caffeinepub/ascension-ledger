@@ -118,9 +118,6 @@ export interface CustomTaskWithStatus {
     attributePoints: bigint;
     points: bigint;
 }
-export interface MissionRequirements {
-    minLevel: bigint;
-}
 export interface Skill {
     id: string;
     name: string;
@@ -134,6 +131,15 @@ export interface DailyTask {
     description: string;
     coinReward: bigint;
 }
+export interface UserMission {
+    id: string;
+    missionType: Variant_repeatable_daily;
+    xpReward: bigint;
+    name: string;
+    createdBy: Principal;
+    description: string;
+    coinReward: bigint;
+}
 export interface Mission {
     id: string;
     missionType: Variant_repeatable_daily;
@@ -141,7 +147,6 @@ export interface Mission {
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: MissionRequirements;
 }
 export interface UserProfile {
     xp: bigint;
@@ -177,9 +182,12 @@ export interface backendInterface {
     allocateStats(statAllocations: Array<[bigint, bigint]>): Promise<UserProfile>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     completeMission(missionId: string): Promise<UserProfile>;
+    completeUserMission(missionId: string): Promise<UserProfile>;
     createCustomTask(title: string, points: bigint, attributePoints: bigint): Promise<void>;
+    createUserMission(title: string, description: string, xpReward: bigint, coinReward: bigint): Promise<string>;
     deleteAccount(): Promise<void>;
     deleteCustomTask(taskId: string): Promise<void>;
+    deleteUserMission(missionId: string): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomTasks(): Promise<Array<CustomTaskWithStatus>>;
@@ -194,6 +202,7 @@ export interface backendInterface {
     getStatNames(): Promise<StatNameArray>;
     getStatValue(_basicStats: StatArray, multipliers: StatArray, _statIndex: bigint): Promise<bigint | null>;
     getUserCustomTasks(user: Principal): Promise<Array<CustomTaskWithStatus>>;
+    getUserMission(missionId: string): Promise<UserMission | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeProfile(nickname: string): Promise<UserProfile>;
     isCallerAdmin(): Promise<boolean>;
@@ -201,6 +210,7 @@ export interface backendInterface {
     listAllMobs(): Promise<Array<Mob>>;
     listMissions(): Promise<Array<Mission>>;
     listSkills(): Promise<Array<Skill>>;
+    listUserMissions(): Promise<Array<UserMission>>;
     markDailyTaskCompleted(taskId: string): Promise<void>;
     rollDie(sides: bigint): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
@@ -209,7 +219,7 @@ export interface backendInterface {
     unlockSkill(skillId: string): Promise<UserProfile>;
     updateUsername(newUsername: string): Promise<void>;
 }
-import type { Mission as _Mission, MissionRequirements as _MissionRequirements, QuestionnaireAnswers as _QuestionnaireAnswers, Skill as _Skill, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Mission as _Mission, QuestionnaireAnswers as _QuestionnaireAnswers, Skill as _Skill, UserMission as _UserMission, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -324,6 +334,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async completeUserMission(arg0: string): Promise<UserProfile> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.completeUserMission(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.completeUserMission(arg0);
+            return result;
+        }
+    }
     async createCustomTask(arg0: string, arg1: bigint, arg2: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -335,6 +359,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.createCustomTask(arg0, arg1, arg2);
+            return result;
+        }
+    }
+    async createUserMission(arg0: string, arg1: string, arg2: bigint, arg3: bigint): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createUserMission(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createUserMission(arg0, arg1, arg2, arg3);
             return result;
         }
     }
@@ -363,6 +401,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.deleteCustomTask(arg0);
+            return result;
+        }
+    }
+    async deleteUserMission(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteUserMission(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteUserMission(arg0);
             return result;
         }
     }
@@ -568,6 +620,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getUserMission(arg0: string): Promise<UserMission | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserMission(arg0);
+                return from_candid_opt_n16(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserMission(arg0);
+            return from_candid_opt_n16(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -642,14 +708,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.listMissions();
-                return from_candid_vec_n16(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.listMissions();
-            return from_candid_vec_n16(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n19(this._uploadFile, this._downloadFile, result);
         }
     }
     async listSkills(): Promise<Array<Skill>> {
@@ -664,6 +730,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.listSkills();
             return result;
+        }
+    }
+    async listUserMissions(): Promise<Array<UserMission>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.listUserMissions();
+                return from_candid_vec_n20(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.listUserMissions();
+            return from_candid_vec_n20(this._uploadFile, this._downloadFile, result);
         }
     }
     async markDailyTaskCompleted(arg0: string): Promise<void> {
@@ -768,6 +848,9 @@ export class Backend implements backendInterface {
 function from_candid_Mission_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Mission): Mission {
     return from_candid_record_n11(_uploadFile, _downloadFile, value);
 }
+function from_candid_UserMission_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserMission): UserMission {
+    return from_candid_record_n18(_uploadFile, _downloadFile, value);
+}
 function from_candid_UserRole_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
     return from_candid_variant_n8(_uploadFile, _downloadFile, value);
 }
@@ -779,6 +862,9 @@ function from_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function from_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserMission]): UserMission | null {
+    return value.length === 0 ? null : from_candid_UserMission_n17(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
@@ -797,7 +883,6 @@ function from_candid_record_n11(_uploadFile: (file: ExternalBlob) => Promise<Uin
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: _MissionRequirements;
 }): {
     id: string;
     missionType: Variant_repeatable_daily;
@@ -805,7 +890,6 @@ function from_candid_record_n11(_uploadFile: (file: ExternalBlob) => Promise<Uin
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: MissionRequirements;
 } {
     return {
         id: value.id,
@@ -813,8 +897,38 @@ function from_candid_record_n11(_uploadFile: (file: ExternalBlob) => Promise<Uin
         xpReward: value.xpReward,
         name: value.name,
         description: value.description,
-        coinReward: value.coinReward,
-        requirements: value.requirements
+        coinReward: value.coinReward
+    };
+}
+function from_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: string;
+    missionType: {
+        repeatable: null;
+    } | {
+        daily: null;
+    };
+    xpReward: bigint;
+    name: string;
+    createdBy: Principal;
+    description: string;
+    coinReward: bigint;
+}): {
+    id: string;
+    missionType: Variant_repeatable_daily;
+    xpReward: bigint;
+    name: string;
+    createdBy: Principal;
+    description: string;
+    coinReward: bigint;
+} {
+    return {
+        id: value.id,
+        missionType: from_candid_variant_n12(_uploadFile, _downloadFile, value.missionType),
+        xpReward: value.xpReward,
+        name: value.name,
+        createdBy: value.createdBy,
+        description: value.description,
+        coinReward: value.coinReward
     };
 }
 function from_candid_variant_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
@@ -833,8 +947,11 @@ function from_candid_variant_n8(_uploadFile: (file: ExternalBlob) => Promise<Uin
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_vec_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Mission>): Array<Mission> {
+function from_candid_vec_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Mission>): Array<Mission> {
     return value.map((x)=>from_candid_Mission_n10(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_UserMission>): Array<UserMission> {
+    return value.map((x)=>from_candid_UserMission_n17(_uploadFile, _downloadFile, x));
 }
 function to_candid_Mission_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Mission): _Mission {
     return to_candid_record_n2(_uploadFile, _downloadFile, value);
@@ -849,7 +966,6 @@ function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: MissionRequirements;
 }): {
     id: string;
     missionType: {
@@ -861,7 +977,6 @@ function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: _MissionRequirements;
 } {
     return {
         id: value.id,
@@ -869,8 +984,7 @@ function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
         xpReward: value.xpReward,
         name: value.name,
         description: value.description,
-        coinReward: value.coinReward,
-        requirements: value.requirements
+        coinReward: value.coinReward
     };
 }
 function to_candid_variant_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Variant_repeatable_daily): {

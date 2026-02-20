@@ -9,10 +9,11 @@ import Int "mo:core/Int";
 import Time "mo:core/Time";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
+import List "mo:core/List";
+import Timer "mo:core/Timer";
+import Iter "mo:core/Iter";
 
 actor {
-  // --- Types ---
-
   public type StatArray = [Int];
   public type StatNameArray = [Text];
 
@@ -79,10 +80,6 @@ actor {
     level : Nat;
   };
 
-  type MissionRequirements = {
-    minLevel : Nat;
-  };
-
   public type Mission = {
     id : Text;
     name : Text;
@@ -90,7 +87,16 @@ actor {
     xpReward : Nat;
     coinReward : Nat;
     missionType : { #daily; #repeatable };
-    requirements : MissionRequirements;
+  };
+
+  public type UserMission = {
+    id : Text;
+    name : Text;
+    description : Text;
+    xpReward : Nat;
+    coinReward : Nat;
+    missionType : { #daily; #repeatable };
+    createdBy : Principal;
   };
 
   public type SkillRequirements = {
@@ -140,7 +146,10 @@ actor {
     customTaskStatus : Map.Map<Text, Bool>;
   };
 
-  // --- Globals ---
+  type DailyTaskEntry = {
+    task : DailyTask;
+    completionTime : Time.Time;
+  };
 
   let mobTypes = [
     ["Aquarius", "Capricornius", "Cancerus", "Sagittarius", "Leo"],
@@ -194,18 +203,56 @@ actor {
   let profiles = Map.empty<Principal, UserProfileInternal>();
 
   let missions = Map.empty<Text, Mission>();
+  let userMissions = Map.empty<Text, UserMission>();
   let skills : Map.Map<Text, Skill> = Map.empty();
 
   let dailyTasks = Map.empty<Text, DailyTask>();
   var customTasks = Map.empty<Principal, Map.Map<Text, CustomTask>>();
+  let taskCompletionLog = Map.empty<Principal, Map.Map<Text, Text>>();
+  let dailyTaskHistory = Map.empty<Principal, List.List<DailyTaskEntry>>();
 
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  // --- Constants ---
   let MAX_ATTRIBUTE_POINTS_PER_TASK : Nat = 10;
+  let MAX_USER_MISSION_XP_REWARD : Nat = 500;
+  let MAX_USER_MISSION_COIN_REWARD : Nat = 500;
 
-  // --- Initialization ---
+  func isSameDay(timestamp1 : Time.Time, timestamp2 : Time.Time) : Bool {
+    let day1 = timestamp1 / 86_400_000_000_000;
+    let day2 = timestamp2 / 86_400_000_000_000;
+    day1 == day2;
+  };
+
+  func hasCompletedTaskToday(user : Principal, taskId : Text, currentTime : Time.Time) : Bool {
+    switch (taskCompletionLog.get(user)) {
+      case (null) { false };
+      case (?userLog) {
+        switch (userLog.get(taskId)) {
+          case (null) { false };
+          case (?timestampStr) {
+            let taskTimestamp = switch (Int.fromText(timestampStr)) {
+              case (null) { return false };
+              case (?t) { t };
+            };
+            isSameDay(taskTimestamp, currentTime);
+          };
+        };
+      };
+    };
+  };
+
+  func logTaskCompletion(user : Principal, taskId : Text, timestamp : Time.Time) {
+    let currentLog = switch (taskCompletionLog.get(user)) {
+      case (null) {
+        let newLog = Map.empty<Text, Text>();
+        taskCompletionLog.add(user, newLog);
+        newLog;
+      };
+      case (?log) { log };
+    };
+    currentLog.add(taskId, timestamp.toText());
+  };
 
   func initializeMissionsAndSkills() {
     missions.add("daily_training", {
@@ -215,7 +262,6 @@ actor {
       xpReward = 100;
       coinReward = 50;
       missionType = #daily;
-      requirements = { minLevel = 1 };
     });
 
     missions.add("hunt_goblins", {
@@ -225,10 +271,8 @@ actor {
       xpReward = 50;
       coinReward = 25;
       missionType = #repeatable;
-      requirements = { minLevel = 1 };
     });
 
-    // Physical Skills
     skills.add("strength_training", {
       id = "strength_training";
       name = "Strength Training";
@@ -239,7 +283,6 @@ actor {
       };
     });
 
-    // Mental Skills
     skills.add("improved_focus", {
       id = "improved_focus";
       name = "Improved Focus";
@@ -270,7 +313,6 @@ actor {
       };
     });
 
-    // Social Skills
     skills.add("active_listening", {
       id = "active_listening";
       name = "Active Listening";
@@ -281,7 +323,6 @@ actor {
       };
     });
 
-    // Creative Skills
     skills.add("creative_writing", {
       id = "creative_writing";
       name = "Creative Writing";
@@ -292,7 +333,6 @@ actor {
       };
     });
 
-    // Financial Skills
     skills.add("budgeting", {
       id = "budgeting";
       name = "Budgeting";
@@ -303,7 +343,6 @@ actor {
       };
     });
 
-    // Health Skills
     skills.add("nutrition_knowledge", {
       id = "nutrition_knowledge";
       name = "Nutrition Knowledge";
@@ -314,7 +353,6 @@ actor {
       };
     });
 
-    // Learning Skills
     skills.add("speed_reading", {
       id = "speed_reading";
       name = "Speed Reading";
@@ -325,7 +363,6 @@ actor {
       };
     });
 
-    // Personal Care Skills
     skills.add("time_management", {
       id = "time_management";
       name = "Time Management";
@@ -388,14 +425,59 @@ actor {
     };
   };
 
-  // --- Custom Tasks Methods ---
+  func generateAIMissionsInternal() : async () {
+    let aiMissionId = "ai_mission_" # Time.now().toText();
+    let aiMission : Mission = {
+      id = aiMissionId;
+      name = "AI Generated Mission";
+      description = "Complete this AI-generated challenge";
+      xpReward = 150;
+      coinReward = 75;
+      missionType = #daily;
+    };
+    missions.add(aiMissionId, aiMission);
+  };
+
+  func resetDailyTasksInternal() : async () {
+    let now = Time.now();
+    let dayInNanos = 86_400_000_000_000;
+
+    for ((user, profile) in profiles.entries()) {
+      let updatedCompletionTimes = Map.empty<Text, Time.Time>();
+
+      for ((taskId, completionTime) in profile.lastMissionCompletionTime.entries()) {
+        if (now - completionTime < dayInNanos) {
+          updatedCompletionTimes.add(taskId, completionTime);
+        };
+      };
+
+      let updatedCompletedDailyTasks = profile.completedDailyTasks.filter(func(taskId) {
+        switch (profile.lastMissionCompletionTime.get(taskId)) {
+          case (?lastTime) { now - lastTime < dayInNanos };
+          case (null) { false };
+        };
+      });
+
+      let updatedProfile : UserProfileInternal = {
+        profile with
+        lastMissionCompletionTime = updatedCompletionTimes;
+        completedDailyTasks = updatedCompletedDailyTasks;
+      };
+
+      profiles.add(user, updatedProfile);
+    };
+  };
+
+  let MIDNIGHT_INTERVAL_NANOS : Nat = 86_400_000_000_000;
+
+  ignore Timer.recurringTimer<system>(#nanoseconds(MIDNIGHT_INTERVAL_NANOS), generateAIMissionsInternal);
+  ignore Timer.recurringTimer<system>(#nanoseconds(MIDNIGHT_INTERVAL_NANOS), resetDailyTasksInternal);
 
   public shared ({ caller }) func createCustomTask(title : Text, points : Nat, attributePoints : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can create custom tasks");
     };
 
-    // Validate attributePoints to prevent abuse
     if (attributePoints > MAX_ATTRIBUTE_POINTS_PER_TASK) {
       Runtime.trap("Attribute points cannot exceed " # MAX_ATTRIBUTE_POINTS_PER_TASK.toText() # " per task");
     };
@@ -488,17 +570,14 @@ actor {
       Runtime.trap("Unauthorized: Only authenticated users can delete custom tasks");
     };
 
-    // Get the user's tasks
     let userTasks = switch (customTasks.get(caller)) {
       case (null) { Runtime.trap("No custom tasks found for user") };
       case (?tasks) { tasks };
     };
 
-    // Verify the task exists and belongs to the caller
     switch (userTasks.get(taskId)) {
       case (null) { Runtime.trap("Custom task not found: " # taskId) };
       case (?_task) {
-        // Task exists and belongs to caller, proceed with deletion
         userTasks.remove(taskId);
       };
     };
@@ -509,7 +588,6 @@ actor {
       Runtime.trap("Unauthorized: Only authenticated users can toggle custom task completion");
     };
 
-    // Verify the task belongs to the caller
     let userTasks = switch (customTasks.get(caller)) {
       case (null) { Runtime.trap("No custom tasks found for user") };
       case (?tasks) { tasks };
@@ -537,13 +615,11 @@ actor {
         var updatedUnspentPoints = profile.unspentStatPoints;
         var xpToNext = profile.xpToNextLevel;
 
-        // Award points only when marking as completed (and wasn't completed before)
         if (completed and not previousStatus) {
           updatedXp += task.points;
           updatedCoins += task.points;
           updatedUnspentPoints += task.attributePoints;
 
-          // Handle level up
           while (updatedXp >= xpToNext) {
             updatedXp -= xpToNext;
             updatedLevel += 1;
@@ -572,8 +648,6 @@ actor {
       };
     };
   };
-
-  // --- Profile Modification ---
 
   public shared ({ caller }) func updateUsername(newUsername : Text) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -606,15 +680,11 @@ actor {
         Runtime.trap("Profile not found. Cannot delete account.");
       };
       case (?_) {
-        // Remove player profile and associated data
         profiles.remove(caller);
-        // Remove custom tasks if any
         customTasks.remove(caller);
       };
     };
   };
-
-  // --- Daily Tasks Methods ---
 
   public shared ({ caller }) func getDailyTaskRecommendations() : async DailyTaskRecommendation {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -637,11 +707,19 @@ actor {
     });
     let incomplete = allTasks.filter(
       func(task) {
-        if (completedToday.find(func(id) { id == task.id }) != null) { false } else { true };
+        switch (completedToday.find<Text>(func(id) { id == task.id })) {
+          case (null) { true };
+          case (?_) { false };
+        };
       }
     );
     {
-      completed = allTasks.filter(func(task) { completedToday.find(func(id) { id == task.id }) != null });
+      completed = allTasks.filter<DailyTask>(func(task) { 
+        switch (completedToday.find<Text>(func(id) { id == task.id })) {
+          case (null) { false };
+          case (?_) { true };
+        };
+      });
       incomplete;
     };
   };
@@ -661,7 +739,6 @@ actor {
       case (null) { Runtime.trap("Daily task not found: " # taskId) };
     };
 
-    // Check if already completed today
     let today = Time.now();
     let dayInNanos = 86_400_000_000_000;
     switch (profile.lastMissionCompletionTime.get(taskId)) {
@@ -673,14 +750,12 @@ actor {
       case (null) {};
     };
 
-    // Award XP and coins
     var updatedXp = profile.xp + task.xpReward;
     var updatedCoins = profile.coins + task.coinReward;
     var updatedLevel = profile.level;
     var updatedUnspentPoints = profile.unspentStatPoints;
     var xpToNext = profile.xpToNextLevel;
 
-    // Handle level up
     while (updatedXp >= xpToNext) {
       updatedXp -= xpToNext;
       updatedLevel += 1;
@@ -688,11 +763,13 @@ actor {
       xpToNext := calculateXpToNextLevel(updatedLevel);
     };
 
-    // Update completion tracking
     let updatedCompletionTimes = profile.lastMissionCompletionTime;
     updatedCompletionTimes.add(taskId, today);
 
-    let alreadyInList = profile.completedDailyTasks.find(func(id) { id == taskId }) != null;
+    let alreadyInList = switch (profile.completedDailyTasks.find(func(id) { id == taskId })) {
+      case (null) { false };
+      case (?_) { true };
+    };
     let updatedCompletedTasks = if (not alreadyInList) {
       let completedTasks = profile.completedDailyTasks;
       Array.tabulate(completedTasks.size() + 1, func(i) { 
@@ -701,6 +778,19 @@ actor {
     } else {
       profile.completedDailyTasks;
     };
+
+    // Record task completion in dailyTaskHistory
+    let entry : DailyTaskEntry = {
+      task;
+      completionTime = today;
+    };
+    let existingHistory = switch (dailyTaskHistory.get(caller)) {
+      case (null) { List.empty<DailyTaskEntry>() };
+      case (?history) { history };
+    };
+
+    existingHistory.add(entry);
+    dailyTaskHistory.add(caller, existingHistory);
 
     let updatedProfile : UserProfileInternal = {
       nickname = profile.nickname;
@@ -721,8 +811,6 @@ actor {
 
     profiles.add(caller, updatedProfile);
   };
-
-  // --- Questionnaire Methods ---
 
   public shared ({ caller }) func submitQuestionnaireAnswers(answers : QuestionnaireAnswers) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -753,8 +841,6 @@ actor {
       case (?profile) { ?profile.questionnaireAnswers };
     };
   };
-
-  // --- Profile Management ---
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -819,8 +905,6 @@ actor {
     toUserProfile(profile);
   };
 
-  // --- XP & Level-Up ---
-
   public shared ({ caller }) func addXp(amount : Nat) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can add XP");
@@ -864,8 +948,6 @@ actor {
     };
   };
 
-  // --- Stat Allocation ---
-
   public shared ({ caller }) func allocateStats(statAllocations : [(Nat, Int)]) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can allocate stats");
@@ -908,8 +990,6 @@ actor {
     };
   };
 
-  // --- Missions ---
-
   public query ({ caller }) func listMissions() : async [Mission] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can list missions");
@@ -935,10 +1015,6 @@ actor {
         switch (missions.get(missionId)) {
           case (null) { Runtime.trap("Mission not found: " # missionId) };
           case (?mission) {
-            if (profile.level < mission.requirements.minLevel) {
-              Runtime.trap("Insufficient level. Required: " # mission.requirements.minLevel.toText());
-            };
-
             switch (mission.missionType) {
               case (#daily) {
                 switch (profile.lastMissionCompletionTime.get(missionId)) {
@@ -958,11 +1034,13 @@ actor {
             let newCompletionTimes = profile.lastMissionCompletionTime;
             newCompletionTimes.add(missionId, Time.now());
 
-            let alreadyCompleted = profile.completedMissions.find(func(id) { id == missionId }) != null;
+            let alreadyCompleted = switch (profile.completedMissions.find(func(id) { id == missionId })) {
+              case (null) { false };
+              case (?_) { true };
+            };
             let newCompletedMissions = if (not alreadyCompleted) {
               let completedMissions = profile.completedMissions;
-              let varCompletedMissions = Array.tabulate(completedMissions.size() + 1, func(i) { if (i < completedMissions.size()) { completedMissions[i] } else { missionId } });
-              varCompletedMissions : [Text];
+              Array.tabulate(completedMissions.size() + 1, func(i) { if (i < completedMissions.size()) { completedMissions[i] } else { missionId } });
             } else {
               profile.completedMissions;
             };
@@ -1004,8 +1082,6 @@ actor {
     };
   };
 
-  // --- Skills ---
-
   public query ({ caller }) func listSkills() : async [Skill] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can list skills");
@@ -1045,8 +1121,9 @@ actor {
         switch (skills.get(skillId)) {
           case (null) { Runtime.trap("Skill not found: " # skillId) };
           case (?skill) {
-            if (profile.unlockedSkills.find(func(id) { id == skillId }) != null) {
-              Runtime.trap("Skill already unlocked: " # skillId);
+            switch (profile.unlockedSkills.find<Text>(func(id) { id == skillId })) {
+              case (null) {};
+              case (?_) { Runtime.trap("Skill already unlocked: " # skillId) };
             };
 
             if (not canUnlockSkill(profile, skill)) {
@@ -1081,8 +1158,6 @@ actor {
     };
   };
 
-  // --- Remaining Functions ---
-
   public type DamageResult = {
     damage : Nat;
     stats : [Int];
@@ -1095,7 +1170,7 @@ actor {
     let randomInt = sides.toInt();
     switch (randomInt) {
       case (0) { 1 };
-      case (nat) { nat.toNat() + 1 };
+      case (nat) { Int.abs(nat) + 1 };
     };
   };
 
@@ -1110,8 +1185,8 @@ actor {
     };
 
     var damage = 0;
-    for ((i, stat) in damageStats.values().enumerate()) {
-      if (stat > 0) { damage += (size - i : Nat) * stat.toNat() };
+    for ((i, stat) in damageStats.enumerate<Int>()) {
+      if (stat > 0) { damage += (size - i : Nat) * Int.abs(stat) };
     };
 
     let _lastStat = damageStats[damageStats.size() - 1];
@@ -1137,7 +1212,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can list mobs");
     };
-    mobs.values().toArray().sort(Mob.compareByName);
+    mobs.values().toArray().sort<Mob>(Mob.compareByName);
   };
 
   public query ({ caller }) func listAllMobTypes() : async [(Nat, Text)] {
@@ -1174,7 +1249,7 @@ actor {
     };
 
     let size = statNamesArray.size();
-    let defaultStatPoints = pointPool / (size : Int);
+    let defaultStatPoints = pointPool / (size.toInt());
 
     Array.tabulate<Int>(
       size,
@@ -1220,5 +1295,135 @@ actor {
     };
     dailyTasks.add(task.id, task);
   };
-};
 
+  public shared ({ caller }) func createUserMission(title : Text, description : Text, xpReward : Nat, coinReward : Nat) : async Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create missions");
+    };
+    
+    if (title.isEmpty() or description.isEmpty()) {
+      Runtime.trap("Mission title and description cannot be empty");
+    };
+
+    if (xpReward > MAX_USER_MISSION_XP_REWARD) {
+      Runtime.trap("XP reward cannot exceed " # MAX_USER_MISSION_XP_REWARD.toText());
+    };
+
+    if (coinReward > MAX_USER_MISSION_COIN_REWARD) {
+      Runtime.trap("Coin reward cannot exceed " # MAX_USER_MISSION_COIN_REWARD.toText());
+    };
+
+    if (xpReward == 0 or coinReward == 0) {
+      Runtime.trap("Rewards must be positive values");
+    };
+
+    let missionId = "user_mission_" # caller.toText() # "_" # Time.now().toText();
+    let userMission : UserMission = {
+      id = missionId;
+      name = title;
+      description;
+      xpReward;
+      coinReward;
+      missionType = #repeatable;
+      createdBy = caller;
+    };
+
+    userMissions.add(missionId, userMission);
+    missionId;
+  };
+
+  public query ({ caller }) func listUserMissions() : async [UserMission] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list user missions");
+    };
+    userMissions.values().toArray();
+  };
+
+  public query ({ caller }) func getUserMission(missionId : Text) : async ?UserMission {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view user missions");
+    };
+    userMissions.get(missionId);
+  };
+
+  public shared ({ caller }) func completeUserMission(missionId : Text) : async UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can complete user missions");
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) { Runtime.trap("Profile not found. Please initialize your profile first.") };
+      case (?profile) {
+        switch (userMissions.get(missionId)) {
+          case (null) { Runtime.trap("User mission not found: " # missionId) };
+          case (?mission) {
+            let newCompletionTimes = profile.lastMissionCompletionTime;
+            newCompletionTimes.add(missionId, Time.now());
+
+            let alreadyCompleted = switch (profile.completedMissions.find(func(id) { id == missionId })) {
+              case (null) { false };
+              case (?_) { true };
+            };
+            let newCompletedMissions = if (not alreadyCompleted) {
+              let completedMissions = profile.completedMissions;
+              Array.tabulate(completedMissions.size() + 1, func(i) { 
+                if (i < completedMissions.size()) { completedMissions[i] } else { missionId } 
+              });
+            } else {
+              profile.completedMissions;
+            };
+
+            var newXp = profile.xp + mission.xpReward;
+            var newLevel = profile.level;
+            var newUnspentPoints = profile.unspentStatPoints;
+            var xpToNext = profile.xpToNextLevel;
+
+            while (newXp >= xpToNext) {
+              newXp -= xpToNext;
+              newLevel += 1;
+              newUnspentPoints += 5;
+              xpToNext := calculateXpToNextLevel(newLevel);
+            };
+
+            let updatedProfile : UserProfileInternal = {
+              nickname = profile.nickname;
+              level = newLevel;
+              xp = newXp;
+              xpToNextLevel = xpToNext;
+              stats = profile.stats;
+              unspentStatPoints = newUnspentPoints;
+              inventory = profile.inventory;
+              coins = profile.coins + mission.coinReward;
+              completedMissions = newCompletedMissions;
+              lastMissionCompletionTime = newCompletionTimes;
+              unlockedSkills = profile.unlockedSkills;
+              questionnaireAnswers = profile.questionnaireAnswers;
+              completedDailyTasks = profile.completedDailyTasks;
+              customTaskStatus = profile.customTaskStatus;
+            };
+
+            profiles.add(caller, updatedProfile);
+            toUserProfile(updatedProfile);
+          };
+        };
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteUserMission(missionId : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete user missions");
+    };
+
+    switch (userMissions.get(missionId)) {
+      case (null) { Runtime.trap("User mission not found: " # missionId) };
+      case (?mission) {
+        if (mission.createdBy != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only delete your own missions");
+        };
+        userMissions.remove(missionId);
+      };
+    };
+  };
+
+};

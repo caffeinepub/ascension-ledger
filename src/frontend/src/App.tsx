@@ -5,6 +5,7 @@ import { ProfileSetupDialog } from './components/profile/ProfileSetupDialog';
 import { PersonalizationQuestionnaire } from './components/profile/PersonalizationQuestionnaire';
 import { DashboardPage } from './pages/DashboardPage';
 import { MissionsPage } from './pages/MissionsPage';
+import { MissionLogPage } from './pages/MissionLogPage';
 import { StatsPage } from './pages/StatsPage';
 import { SkillsPage } from './pages/SkillsPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
@@ -13,7 +14,7 @@ import { LandingPage } from './pages/LandingPage';
 import { useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 
-export type AppScreen = 'dashboard' | 'missions' | 'stats' | 'skills' | 'profile' | 'customTasks';
+export type AppScreen = 'dashboard' | 'missions' | 'missionLog' | 'stats' | 'skills' | 'profile' | 'customTasks';
 
 export default function App() {
   const { identity, loginStatus } = useInternetIdentity();
@@ -60,23 +61,41 @@ export default function App() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="text-white/75">Loading system...</p>
+          <div className="mb-4 text-lg text-white/90">Initializing system...</div>
+          <div className="h-2 w-64 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full w-1/2 animate-pulse bg-primary"></div>
+          </div>
         </div>
+        <Toaster />
       </div>
     );
   }
 
-  // Main application with navigation
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'dashboard':
+        return <DashboardPage />;
+      case 'missions':
+        return <MissionsPage />;
+      case 'missionLog':
+        return <MissionLogPage />;
+      case 'stats':
+        return <StatsPage />;
+      case 'skills':
+        return <SkillsPage />;
+      case 'profile':
+        return <ProfileSettingsPage />;
+      case 'customTasks':
+        return <CustomTasksPage />;
+      default:
+        return <DashboardPage />;
+    }
+  };
+
   return (
     <>
       <AppLayout currentScreen={currentScreen} onNavigate={setCurrentScreen}>
-        {currentScreen === 'dashboard' && <DashboardPage />}
-        {currentScreen === 'missions' && <MissionsPage />}
-        {currentScreen === 'stats' && <StatsPage />}
-        {currentScreen === 'skills' && <SkillsPage />}
-        {currentScreen === 'profile' && <ProfileSettingsPage />}
-        {currentScreen === 'customTasks' && <CustomTasksPage />}
+        {renderScreen()}
       </AppLayout>
       <Toaster />
     </>

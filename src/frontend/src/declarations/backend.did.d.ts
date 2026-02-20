@@ -37,9 +37,7 @@ export interface Mission {
   'name' : string,
   'description' : string,
   'coinReward' : bigint,
-  'requirements' : MissionRequirements,
 }
-export interface MissionRequirements { 'minLevel' : bigint }
 export interface Mob {
   'name' : string,
   'level' : bigint,
@@ -60,6 +58,16 @@ export interface SkillRequirements {
 export type StatArray = Array<bigint>;
 export type StatNameArray = Array<string>;
 export type Time = bigint;
+export interface UserMission {
+  'id' : string,
+  'missionType' : { 'repeatable' : null } |
+    { 'daily' : null },
+  'xpReward' : bigint,
+  'name' : string,
+  'createdBy' : Principal,
+  'description' : string,
+  'coinReward' : bigint,
+}
 export interface UserProfile {
   'xp' : bigint,
   'credits' : bigint,
@@ -88,9 +96,12 @@ export interface _SERVICE {
   'allocateStats' : ActorMethod<[Array<[bigint, bigint]>], UserProfile>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'completeMission' : ActorMethod<[string], UserProfile>,
+  'completeUserMission' : ActorMethod<[string], UserProfile>,
   'createCustomTask' : ActorMethod<[string, bigint, bigint], undefined>,
+  'createUserMission' : ActorMethod<[string, string, bigint, bigint], string>,
   'deleteAccount' : ActorMethod<[], undefined>,
   'deleteCustomTask' : ActorMethod<[string], undefined>,
+  'deleteUserMission' : ActorMethod<[string], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCustomTasks' : ActorMethod<[], Array<CustomTaskWithStatus>>,
@@ -108,6 +119,7 @@ export interface _SERVICE {
   'getStatNames' : ActorMethod<[], StatNameArray>,
   'getStatValue' : ActorMethod<[StatArray, StatArray, bigint], [] | [bigint]>,
   'getUserCustomTasks' : ActorMethod<[Principal], Array<CustomTaskWithStatus>>,
+  'getUserMission' : ActorMethod<[string], [] | [UserMission]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'initializeProfile' : ActorMethod<[string], UserProfile>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -115,6 +127,7 @@ export interface _SERVICE {
   'listAllMobs' : ActorMethod<[], Array<Mob>>,
   'listMissions' : ActorMethod<[], Array<Mission>>,
   'listSkills' : ActorMethod<[], Array<Skill>>,
+  'listUserMissions' : ActorMethod<[], Array<UserMission>>,
   'markDailyTaskCompleted' : ActorMethod<[string], undefined>,
   'rollDie' : ActorMethod<[bigint], bigint>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,

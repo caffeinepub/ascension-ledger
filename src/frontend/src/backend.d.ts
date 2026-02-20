@@ -36,9 +36,6 @@ export interface CustomTaskWithStatus {
     attributePoints: bigint;
     points: bigint;
 }
-export interface MissionRequirements {
-    minLevel: bigint;
-}
 export interface Skill {
     id: string;
     name: string;
@@ -52,6 +49,15 @@ export interface DailyTask {
     description: string;
     coinReward: bigint;
 }
+export interface UserMission {
+    id: string;
+    missionType: Variant_repeatable_daily;
+    xpReward: bigint;
+    name: string;
+    createdBy: Principal;
+    description: string;
+    coinReward: bigint;
+}
 export interface Mission {
     id: string;
     missionType: Variant_repeatable_daily;
@@ -59,7 +65,6 @@ export interface Mission {
     name: string;
     description: string;
     coinReward: bigint;
-    requirements: MissionRequirements;
 }
 export interface UserProfile {
     xp: bigint;
@@ -94,9 +99,12 @@ export interface backendInterface {
     allocateStats(statAllocations: Array<[bigint, bigint]>): Promise<UserProfile>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     completeMission(missionId: string): Promise<UserProfile>;
+    completeUserMission(missionId: string): Promise<UserProfile>;
     createCustomTask(title: string, points: bigint, attributePoints: bigint): Promise<void>;
+    createUserMission(title: string, description: string, xpReward: bigint, coinReward: bigint): Promise<string>;
     deleteAccount(): Promise<void>;
     deleteCustomTask(taskId: string): Promise<void>;
+    deleteUserMission(missionId: string): Promise<void>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCustomTasks(): Promise<Array<CustomTaskWithStatus>>;
@@ -111,6 +119,7 @@ export interface backendInterface {
     getStatNames(): Promise<StatNameArray>;
     getStatValue(_basicStats: StatArray, multipliers: StatArray, _statIndex: bigint): Promise<bigint | null>;
     getUserCustomTasks(user: Principal): Promise<Array<CustomTaskWithStatus>>;
+    getUserMission(missionId: string): Promise<UserMission | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeProfile(nickname: string): Promise<UserProfile>;
     isCallerAdmin(): Promise<boolean>;
@@ -118,6 +127,7 @@ export interface backendInterface {
     listAllMobs(): Promise<Array<Mob>>;
     listMissions(): Promise<Array<Mission>>;
     listSkills(): Promise<Array<Skill>>;
+    listUserMissions(): Promise<Array<UserMission>>;
     markDailyTaskCompleted(taskId: string): Promise<void>;
     rollDie(sides: bigint): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;

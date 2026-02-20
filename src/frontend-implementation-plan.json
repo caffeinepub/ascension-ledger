@@ -1,62 +1,47 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add username editing and account deletion to profile page",
+  "title": "Frontend for Mission Log History View",
   "requirements": [
     {
       "id": "REQ-3",
-      "summary": "Add username edit interface to the ProfileSettingsPage with editable input field, save button, and success/error feedback using toast notifications",
+      "summary": "Add a mission log history view displaying automated daily log entries with date, completed activities, and rewards",
       "acceptanceCriteria": [
-        "Profile page displays current username in an editable field",
-        "Save button triggers username update via backend mutation",
-        "Success toast appears when username is updated successfully",
-        "Error toast appears if update fails",
-        "Profile data refreshes after successful update"
+        "Mission log is accessible from the main navigation or dashboard",
+        "Log entries are displayed in reverse chronological order (newest first)",
+        "Each entry shows the date, completed tasks/missions count, and rewards (XP/coins)",
+        "UI follows existing design system with cyber/neon theme styling"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ProfileSettingsPage.tsx",
+          "path": "frontend/src/backend.d.ts",
           "operation": "modify",
-          "description": "Add username editing section with input field and save button. Use the existing useGetCallerUserProfile hook to display current username. Create a mutation hook call for updateUsername backend function. Wire up save button to trigger the mutation with validation for non-empty username. Display toast notifications for success/error feedback. Ensure profile data refreshes after successful update using query invalidation."
+          "description": "Add TypeScript interface definitions for MissionLogEntry type returned by the backend, including fields for date (Time), completedTasksCount (bigint), completedMissionsCount (bigint), xpEarned (bigint), and coinsEarned (bigint). Also add backend method signature: listMissionLogEntries(): Promise<Array<MissionLogEntry>>."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add useUpdateUsername mutation hook that calls actor.updateUsername(newUsername). Include onSuccess callback to invalidate currentUserProfile query and show success toast. Include onError callback to show error toast with appropriate message. Follow existing mutation patterns in the file."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
-      "acceptanceCriteria": [
-        "Delete account button is prominently displayed on profile page with warning styling",
-        "Clicking delete button opens confirmation dialog explaining permanent data loss",
-        "Confirmation dialog has cancel and confirm delete buttons",
-        "Upon confirmation, account deletion mutation is triggered",
-        "After successful deletion, user is logged out and redirected to landing page",
-        "Error toast appears if deletion fails"
-      ],
-      "file_operations": [
+          "description": "Add a new React Query hook useListMissionLogEntries() that fetches mission log entries from the backend using the listMissionLogEntries method. Include proper query key, error handling with toast notifications, and enabled state tied to actor availability. Follow the existing pattern used for other list queries in this file."
+        },
         {
-          "path": "frontend/src/components/profile/AccountDeletionDialog.tsx",
+          "path": "frontend/src/pages/MissionLogPage.tsx",
           "operation": "create",
-          "description": "Create confirmation dialog component using shadcn/ui Dialog component. Display warning message explaining that account deletion is permanent and will delete all progress including tasks, missions, stats, and skills. Include two buttons: Cancel (closes dialog) and Confirm Delete (styled with destructive/danger colors). Accept onConfirm callback prop to trigger deletion. Use consistent styling with existing dialogs in the codebase."
+          "description": "Create a new page component that displays mission log history in a card-based layout. Use useListMissionLogEntries hook to fetch data. Display entries in reverse chronological order with date formatting, completed tasks/missions counts, and XP/coins earned. Include loading and error states. Style using existing Tailwind classes with cyber/neon theme (bg-card/25, border-primary/20, text-accent, etc.). Use the AppLayout wrapper for consistent navigation."
         },
         {
-          "path": "frontend/src/pages/ProfileSettingsPage.tsx",
+          "path": "frontend/src/components/layout/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add Delete Account button section at the bottom of the profile page with warning/danger styling (red color scheme). Import and render AccountDeletionDialog component with state to control open/close. Wire the dialog's onConfirm to trigger the account deletion mutation. After successful deletion, call Internet Identity clear() function to logout and navigate to landing page using the app's navigation system."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add useDeleteAccount mutation hook that calls actor.deleteAccount(). Include onSuccess callback to clear query cache, logout via Internet Identity clear(), and show success toast. Include onError callback to show error toast with appropriate message. Follow existing mutation patterns in the file."
+          "description": "Add a new navigation item for 'Mission Log' in the sidebar navigation array. Include an appropriate icon (e.g., ScrollText from lucide-react) and set the path to '/mission-log'. Position it after 'Missions' and before 'Custom Tasks' for logical grouping of mission-related features."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Ensure that after logout (identity becomes null), the app properly redirects to LandingPage. Verify the existing authentication flow handles the logout-after-deletion scenario correctly, showing LandingPage when identity is cleared."
+          "description": "Add a new route for the MissionLogPage component at path '/mission-log'. Import MissionLogPage and add it to the router configuration between the missions route and custom-tasks route. Ensure it is wrapped in the authenticated section after profile setup and questionnaire completion."
+        },
+        {
+          "path": "frontend/src/content/copy.ts",
+          "operation": "modify",
+          "description": "Add a new 'missionLog' section to the copy object containing UI text for the mission log page, including page title ('Mission Log History'), empty state message ('No mission log entries yet. Complete tasks and missions to see your daily progress here.'), and column headers ('Date', 'Tasks Completed', 'Missions Completed', 'XP Earned', 'Coins Earned')."
         }
       ]
     }

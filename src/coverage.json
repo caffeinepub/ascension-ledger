@@ -1,57 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T08:18:00.497Z",
+  "generatedAt": "2026-02-20T09:25:23.273Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 4,
-    "implemented": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+        "summary": "Implement a daily timer mechanism that triggers at midnight (00:00:00 local time) to automatically generate new AI-recommended daily tasks",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+        "summary": "Create automated mission log entries at midnight that record daily activity summaries including completed tasks, missions accomplished, XP gained, and coins earned for that day",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
+        "summary": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/backend.d.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/MissionLogPage.tsx",
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/content/copy.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/pages/MissionLogPage.tsx",
+          "frontend/src/components/layout/AppLayout.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/content/copy.ts"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/profile/AccountDeletionDialog.tsx",
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/profile/AccountDeletionDialog.tsx",
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
+        "summary": "Enhance the AI task generation logic to consider user's historical completion patterns, time of day preferences, and previously completed tasks to provide more personalized daily recommendations",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
@@ -61,13 +58,10 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/profile/AccountDeletionDialog.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/ProfileSettingsPage.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/layout/AppLayout.tsx",
+    "frontend/src/content/copy.ts",
+    "frontend/src/pages/MissionLogPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

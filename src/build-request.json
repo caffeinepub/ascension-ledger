@@ -1,97 +1,97 @@
 {
   "kind": "build_request",
-  "title": "Add username editing and account deletion to profile page",
+  "title": "Implement automated daily AI task generation and mission log updates at midnight",
+  "projectName": "Cryonex",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+      "text": "Implement a daily timer mechanism that triggers at midnight (00:00:00 local time) to automatically generate new AI-recommended daily tasks",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-final"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Add a option to edit username in the profile page"
+          "perfect the ai to add tasks and mission log daily at 12am"
         ]
       },
       "acceptanceCriteria": [
-        "Backend function accepts principal and new username as parameters",
-        "Function validates that username is not empty",
-        "Function updates the player's nickname in the backend state",
-        "Function returns success or error result"
+        "Timer triggers precisely at midnight each day",
+        "AI task generation is invoked automatically without user interaction",
+        "New daily tasks replace or append to existing daily tasks based on current completion status",
+        "System handles timezone considerations appropriately"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+      "text": "Create automated mission log entries at midnight that record daily activity summaries including completed tasks, missions accomplished, XP gained, and coins earned for that day",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-final"
+          "msg-user-latest"
         ],
         "quotes": [
-          "an option to delete the user account in the profile page"
+          "mission log daily at 12am"
         ]
       },
       "acceptanceCriteria": [
-        "Backend function accepts principal as parameter",
-        "Function removes all player data from backend state",
-        "Function returns confirmation of deletion"
+        "Mission log entry is created automatically at midnight",
+        "Log captures all relevant daily metrics: completed tasks count, completed missions count, total XP earned, total coins earned",
+        "Log entries are timestamped with the date they represent",
+        "Log entries are persistent and retrievable for historical review"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
+      "text": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-final"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Add a option to edit username in the profile page"
+          "mission log daily at 12am"
         ]
       },
       "acceptanceCriteria": [
-        "Profile page displays current username in an editable field",
-        "Save button triggers username update via backend mutation",
-        "Success toast appears when username is updated successfully",
-        "Error toast appears if update fails",
-        "Profile data refreshes after successful update"
+        "Mission log is accessible from the main navigation or dashboard",
+        "Log entries are displayed in reverse chronological order (newest first)",
+        "Each entry shows the date, completed tasks/missions count, and rewards (XP/coins)",
+        "UI follows existing design system with cyber/neon theme styling"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
-      "target": "frontend",
+      "text": "Enhance the AI task generation logic to consider user's historical completion patterns, time of day preferences, and previously completed tasks to provide more personalized daily recommendations",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-final"
+          "msg-user-latest"
         ],
         "quotes": [
-          "an option to delete the user account in the profile page"
+          "perfect the ai to add tasks"
         ]
       },
       "acceptanceCriteria": [
-        "Delete account button is prominently displayed on profile page with warning styling",
-        "Clicking delete button opens confirmation dialog explaining permanent data loss",
-        "Confirmation dialog has cancel and confirm delete buttons",
-        "Upon confirmation, account deletion mutation is triggered",
-        "After successful deletion, user is logged out and redirected to landing page",
-        "Error toast appears if deletion fails"
+        "AI uses taskCompletionLog data to analyze user patterns",
+        "Generated tasks vary based on user's completion success rates",
+        "Tasks avoid repetition of recently completed activities unless they are recurring by nature",
+        "Task difficulty scales appropriately with user level and stats"
       ]
     }
   ],
   "constraints": [
-    "Username edit must maintain the same validation rules as initial profile setup",
-    "Account deletion must be irreversible and remove all user data",
-    "Both features must use the existing Internet Identity principal for authentication"
+    "Use Motoko timers or heartbeat mechanism for scheduling midnight triggers",
+    "Do not modify existing authentication or profile management logic",
+    "Maintain compatibility with existing dailyTasks and taskCompletionLog data structures",
+    "Preserve all existing mission and task functionality"
   ],
   "nonGoals": [
-    "Username change history tracking",
-    "Account recovery or soft deletion",
-    "Data export before deletion",
-    "Email notifications for account changes"
+    "User-configurable notification times (fixed at midnight)",
+    "Email or push notifications for daily updates",
+    "Real-time synchronization across multiple devices",
+    "External calendar integrations"
   ],
   "imageRequirements": {
     "required": [],

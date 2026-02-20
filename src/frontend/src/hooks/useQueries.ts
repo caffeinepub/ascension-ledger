@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { UserProfile, Mission, Skill, QuestionnaireAnswers, DailyTaskRecommendation, CustomTaskWithStatus } from '../backend';
+import type { UserProfile, Mission, Skill, QuestionnaireAnswers, DailyTaskRecommendation, CustomTaskWithStatus, UserMission } from '../backend';
 import { toast } from 'sonner';
 
 // Profile hooks
@@ -279,7 +279,105 @@ export function useCompleteMission() {
   });
 }
 
-// Skill hooks
+// User Mission hooks
+export function useListUserMissions() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<UserMission[]>({
+    queryKey: ['userMissions'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.listUserMissions();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetUserMission() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (missionId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getUserMission(missionId);
+    },
+  });
+}
+
+export function useCreateUserMission() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      title, 
+      description, 
+      xpReward, 
+      coinReward 
+    }: { 
+      title: string; 
+      description: string; 
+      xpReward: number; 
+      coinReward: number; 
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createUserMission(
+        title, 
+        description, 
+        BigInt(xpReward), 
+        BigInt(coinReward)
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userMissions'] });
+      toast.success('Custom mission created successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to create custom mission');
+    },
+  });
+}
+
+export function useCompleteUserMission() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (missionId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.completeUserMission(missionId);
+    },
+    onSuccess: (profile) => {
+      queryClient.setQueryData(['currentUserProfile'], profile);
+      queryClient.invalidateQueries({ queryKey: ['userMissions'] });
+      toast.success('Custom mission completed!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to complete custom mission');
+    },
+  });
+}
+
+export function useDeleteUserMission() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (missionId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteUserMission(missionId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userMissions'] });
+      toast.success('Custom mission deleted successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to delete custom mission');
+    },
+  });
+}
+
+// Skills hooks
 export function useListSkills() {
   const { actor, isFetching: actorFetching } = useActor();
 
