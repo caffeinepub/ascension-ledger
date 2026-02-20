@@ -102,17 +102,17 @@
 
     /* Semi-transparent dark overlays for UI components */
     .card-overlay {
-        background: rgba(0, 0, 0, 0.75);
-        backdrop-filter: blur(8px);
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(12px);
     }
 
     .container-overlay {
-        background: rgba(0, 0, 0, 0.8);
-        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
     }
 
     .glass-overlay {
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(12px);
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(16px);
     }
 }

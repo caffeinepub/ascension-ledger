@@ -8,6 +8,12 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const DailyTask = IDL.Record({
+  'id' : IDL.Text,
+  'xpReward' : IDL.Nat,
+  'description' : IDL.Text,
+  'coinReward' : IDL.Nat,
+});
 export const MissionRequirements = IDL.Record({ 'minLevel' : IDL.Nat });
 export const Mission = IDL.Record({
   'id' : IDL.Text,
@@ -29,17 +35,21 @@ export const Skill = IDL.Record({
   'requirements' : SkillRequirements,
 });
 export const StatArray = IDL.Vec(IDL.Int);
+export const QuestionnaireAnswers = IDL.Vec(IDL.Text);
 export const Time = IDL.Int;
 export const CooldownArray = IDL.Vec(IDL.Tuple(IDL.Text, Time));
 export const UserProfile = IDL.Record({
   'xp' : IDL.Nat,
+  'credits' : IDL.Nat,
   'nickname' : IDL.Text,
   'inventory' : IDL.Vec(IDL.Text),
   'coins' : IDL.Nat,
   'unspentStatPoints' : IDL.Nat,
   'completedMissions' : IDL.Vec(IDL.Text),
+  'completedDailyTasks' : IDL.Vec(IDL.Text),
   'level' : IDL.Nat,
   'stats' : StatArray,
+  'questionnaireAnswers' : QuestionnaireAnswers,
   'xpToNextLevel' : IDL.Nat,
   'unlockedSkills' : IDL.Vec(IDL.Text),
   'lastMissionCompletionTime' : CooldownArray,
@@ -48,6 +58,17 @@ export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
+});
+export const CustomTaskWithStatus = IDL.Record({
+  'id' : IDL.Text,
+  'title' : IDL.Text,
+  'completed' : IDL.Bool,
+  'attributePoints' : IDL.Nat,
+  'points' : IDL.Nat,
+});
+export const DailyTaskRecommendation = IDL.Record({
+  'incomplete' : IDL.Vec(DailyTask),
+  'completed' : IDL.Vec(DailyTask),
 });
 export const DamageResult = IDL.Record({
   'damage' : IDL.Nat,
@@ -63,6 +84,7 @@ export const Mob = IDL.Record({
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'addDailyTask' : IDL.Func([DailyTask], [], []),
   'addMission' : IDL.Func([Mission], [], []),
   'addSkill' : IDL.Func([Skill], [], []),
   'addXp' : IDL.Func([IDL.Nat], [UserProfile], []),
@@ -73,17 +95,27 @@ export const idlService = IDL.Service({
     ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'completeMission' : IDL.Func([IDL.Text], [UserProfile], []),
-  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], []),
+  'createCustomTask' : IDL.Func([IDL.Text, IDL.Nat, IDL.Nat], [], []),
+  'deleteAccount' : IDL.Func([], [], []),
+  'deleteCustomTask' : IDL.Func([IDL.Text], [], []),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getCustomTasks' : IDL.Func([], [IDL.Vec(CustomTaskWithStatus)], ['query']),
+  'getDailyTaskRecommendations' : IDL.Func([], [DailyTaskRecommendation], []),
   'getDamage' : IDL.Func([IDL.Vec(IDL.Int)], [DamageResult], []),
   'getDirectionFromCoordinates' : IDL.Func(
       [IDL.Tuple(IDL.Nat, IDL.Nat), IDL.Tuple(IDL.Nat, IDL.Nat)],
       [IDL.Text, IDL.Text],
       [],
     ),
-  'getMission' : IDL.Func([IDL.Text], [IDL.Opt(Mission)], []),
+  'getMission' : IDL.Func([IDL.Text], [IDL.Opt(Mission)], ['query']),
   'getMobStats' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Int], [StatArray], []),
-  'getSkill' : IDL.Func([IDL.Text], [IDL.Opt(Skill)], []),
+  'getQuestionnaireAnswers' : IDL.Func(
+      [],
+      [IDL.Opt(QuestionnaireAnswers)],
+      ['query'],
+    ),
+  'getSkill' : IDL.Func([IDL.Text], [IDL.Opt(Skill)], ['query']),
   'getStartingStats' : IDL.Func([IDL.Int, IDL.Int, IDL.Int], [StatArray], []),
   'getStatNames' : IDL.Func([], [StatNameArray], ['query']),
   'getStatValue' : IDL.Func(
@@ -91,7 +123,16 @@ export const idlService = IDL.Service({
       [IDL.Opt(IDL.Int)],
       [],
     ),
-  'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(UserProfile)], []),
+  'getUserCustomTasks' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(CustomTaskWithStatus)],
+      ['query'],
+    ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
   'initializeProfile' : IDL.Func([IDL.Text], [UserProfile], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listAllMobTypes' : IDL.Func(
@@ -100,15 +141,26 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'listAllMobs' : IDL.Func([], [IDL.Vec(Mob)], ['query']),
-  'listMissions' : IDL.Func([], [IDL.Vec(Mission)], []),
-  'listSkills' : IDL.Func([], [IDL.Vec(Skill)], []),
+  'listMissions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
+  'listSkills' : IDL.Func([], [IDL.Vec(Skill)], ['query']),
+  'markDailyTaskCompleted' : IDL.Func([IDL.Text], [], []),
   'rollDie' : IDL.Func([IDL.Nat], [IDL.Nat], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'submitQuestionnaireAnswers' : IDL.Func([QuestionnaireAnswers], [], []),
+  'toggleCustomTaskCompletion' : IDL.Func([IDL.Text, IDL.Bool], [], []),
   'unlockSkill' : IDL.Func([IDL.Text], [UserProfile], []),
+  'updateUsername' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const DailyTask = IDL.Record({
+    'id' : IDL.Text,
+    'xpReward' : IDL.Nat,
+    'description' : IDL.Text,
+    'coinReward' : IDL.Nat,
+  });
   const MissionRequirements = IDL.Record({ 'minLevel' : IDL.Nat });
   const Mission = IDL.Record({
     'id' : IDL.Text,
@@ -133,17 +185,21 @@ export const idlFactory = ({ IDL }) => {
     'requirements' : SkillRequirements,
   });
   const StatArray = IDL.Vec(IDL.Int);
+  const QuestionnaireAnswers = IDL.Vec(IDL.Text);
   const Time = IDL.Int;
   const CooldownArray = IDL.Vec(IDL.Tuple(IDL.Text, Time));
   const UserProfile = IDL.Record({
     'xp' : IDL.Nat,
+    'credits' : IDL.Nat,
     'nickname' : IDL.Text,
     'inventory' : IDL.Vec(IDL.Text),
     'coins' : IDL.Nat,
     'unspentStatPoints' : IDL.Nat,
     'completedMissions' : IDL.Vec(IDL.Text),
+    'completedDailyTasks' : IDL.Vec(IDL.Text),
     'level' : IDL.Nat,
     'stats' : StatArray,
+    'questionnaireAnswers' : QuestionnaireAnswers,
     'xpToNextLevel' : IDL.Nat,
     'unlockedSkills' : IDL.Vec(IDL.Text),
     'lastMissionCompletionTime' : CooldownArray,
@@ -152,6 +208,17 @@ export const idlFactory = ({ IDL }) => {
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const CustomTaskWithStatus = IDL.Record({
+    'id' : IDL.Text,
+    'title' : IDL.Text,
+    'completed' : IDL.Bool,
+    'attributePoints' : IDL.Nat,
+    'points' : IDL.Nat,
+  });
+  const DailyTaskRecommendation = IDL.Record({
+    'incomplete' : IDL.Vec(DailyTask),
+    'completed' : IDL.Vec(DailyTask),
   });
   const DamageResult = IDL.Record({
     'damage' : IDL.Nat,
@@ -167,6 +234,7 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'addDailyTask' : IDL.Func([DailyTask], [], []),
     'addMission' : IDL.Func([Mission], [], []),
     'addSkill' : IDL.Func([Skill], [], []),
     'addXp' : IDL.Func([IDL.Nat], [UserProfile], []),
@@ -177,17 +245,27 @@ export const idlFactory = ({ IDL }) => {
       ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'completeMission' : IDL.Func([IDL.Text], [UserProfile], []),
-    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], []),
+    'createCustomTask' : IDL.Func([IDL.Text, IDL.Nat, IDL.Nat], [], []),
+    'deleteAccount' : IDL.Func([], [], []),
+    'deleteCustomTask' : IDL.Func([IDL.Text], [], []),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getCustomTasks' : IDL.Func([], [IDL.Vec(CustomTaskWithStatus)], ['query']),
+    'getDailyTaskRecommendations' : IDL.Func([], [DailyTaskRecommendation], []),
     'getDamage' : IDL.Func([IDL.Vec(IDL.Int)], [DamageResult], []),
     'getDirectionFromCoordinates' : IDL.Func(
         [IDL.Tuple(IDL.Nat, IDL.Nat), IDL.Tuple(IDL.Nat, IDL.Nat)],
         [IDL.Text, IDL.Text],
         [],
       ),
-    'getMission' : IDL.Func([IDL.Text], [IDL.Opt(Mission)], []),
+    'getMission' : IDL.Func([IDL.Text], [IDL.Opt(Mission)], ['query']),
     'getMobStats' : IDL.Func([IDL.Nat, IDL.Nat, IDL.Int], [StatArray], []),
-    'getSkill' : IDL.Func([IDL.Text], [IDL.Opt(Skill)], []),
+    'getQuestionnaireAnswers' : IDL.Func(
+        [],
+        [IDL.Opt(QuestionnaireAnswers)],
+        ['query'],
+      ),
+    'getSkill' : IDL.Func([IDL.Text], [IDL.Opt(Skill)], ['query']),
     'getStartingStats' : IDL.Func([IDL.Int, IDL.Int, IDL.Int], [StatArray], []),
     'getStatNames' : IDL.Func([], [StatNameArray], ['query']),
     'getStatValue' : IDL.Func(
@@ -195,7 +273,16 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(IDL.Int)],
         [],
       ),
-    'getUserProfile' : IDL.Func([IDL.Principal], [IDL.Opt(UserProfile)], []),
+    'getUserCustomTasks' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(CustomTaskWithStatus)],
+        ['query'],
+      ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
     'initializeProfile' : IDL.Func([IDL.Text], [UserProfile], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listAllMobTypes' : IDL.Func(
@@ -204,10 +291,15 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'listAllMobs' : IDL.Func([], [IDL.Vec(Mob)], ['query']),
-    'listMissions' : IDL.Func([], [IDL.Vec(Mission)], []),
-    'listSkills' : IDL.Func([], [IDL.Vec(Skill)], []),
+    'listMissions' : IDL.Func([], [IDL.Vec(Mission)], ['query']),
+    'listSkills' : IDL.Func([], [IDL.Vec(Skill)], ['query']),
+    'markDailyTaskCompleted' : IDL.Func([IDL.Text], [], []),
     'rollDie' : IDL.Func([IDL.Nat], [IDL.Nat], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'submitQuestionnaireAnswers' : IDL.Func([QuestionnaireAnswers], [], []),
+    'toggleCustomTaskCompletion' : IDL.Func([IDL.Text, IDL.Bool], [], []),
     'unlockSkill' : IDL.Func([IDL.Text], [UserProfile], []),
+    'updateUsername' : IDL.Func([IDL.Text], [], []),
   });
 };
 

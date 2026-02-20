@@ -1,109 +1,62 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Apply custom background image and improve text visibility",
+  "title": "Add username editing and account deletion to profile page",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Apply uploaded image IMG_20260219_080023.png.jpg as fixed background across all pages",
+      "id": "REQ-3",
+      "summary": "Add username edit interface to the ProfileSettingsPage with editable input field, save button, and success/error feedback using toast notifications",
       "acceptanceCriteria": [
-        "The uploaded image is displayed as a fixed background across all application pages",
-        "Background image maintains proper aspect ratio and covers the entire viewport",
-        "Background image does not interfere with content readability"
+        "Profile page displays current username in an editable field",
+        "Save button triggers username update via backend mutation",
+        "Success toast appears when username is updated successfully",
+        "Error toast appears if update fails",
+        "Profile data refreshes after successful update"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/pages/ProfileSettingsPage.tsx",
           "operation": "modify",
-          "description": "Add global CSS rule to apply the uploaded image IMG_20260219_080023.png.jpg as a fixed background using the asset path frontend/public/assets/IMG_20260219_080023.png.jpg. Configure background-size: cover, background-position: center, background-attachment: fixed, and background-repeat: no-repeat on the body element to ensure the image covers the viewport and maintains proper aspect ratio without interfering with content readability."
+          "description": "Add username editing section with input field and save button. Use the existing useGetCallerUserProfile hook to display current username. Create a mutation hook call for updateUsername backend function. Wire up save button to trigger the mutation with validation for non-empty username. Display toast notifications for success/error feedback. Ensure profile data refreshes after successful update using query invalidation."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add useUpdateUsername mutation hook that calls actor.updateUsername(newUsername). Include onSuccess callback to invalidate currentUserProfile query and show success toast. Include onError callback to show error toast with appropriate message. Follow existing mutation patterns in the file."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Ensure dark theme is maintained with semi-transparent overlays for UI components",
+      "id": "REQ-4",
+      "summary": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
       "acceptanceCriteria": [
-        "All UI components maintain dark theme styling",
-        "Cards, panels, and overlays have dark backgrounds that contrast with the background image",
-        "Navigation elements preserve dark theme appearance"
+        "Delete account button is prominently displayed on profile page with warning styling",
+        "Clicking delete button opens confirmation dialog explaining permanent data loss",
+        "Confirmation dialog has cancel and confirm delete buttons",
+        "Upon confirmation, account deletion mutation is triggered",
+        "After successful deletion, user is logged out and redirected to landing page",
+        "Error toast appears if deletion fails"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add dark semi-transparent overlay styles for cards, panels, and containers using rgba(0, 0, 0, 0.75) to rgba(0, 0, 0, 0.85) backgrounds with backdrop-filter: blur(8px) for glassmorphism effect. Apply these styles to common container classes to ensure UI components contrast properly with the background image while preserving the dark sci-fi aesthetic."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Update the AppLayout component to add semi-transparent dark backgrounds (rgba(0, 0, 0, 0.8)) to the header, sidebar, and footer elements. Ensure navigation elements maintain visibility and contrast against the new background image while preserving the existing dark theme styling and layout structure."
-        },
-        {
-          "path": "frontend/src/pages/DashboardPage.tsx",
-          "operation": "modify",
-          "description": "Update card and panel backgrounds in DashboardPage to use semi-transparent dark overlays (rgba(0, 0, 0, 0.75) with backdrop-filter) to ensure stat cards, progress bars, and content sections maintain readability and contrast against the background image."
-        },
-        {
-          "path": "frontend/src/pages/MissionsPage.tsx",
-          "operation": "modify",
-          "description": "Update mission card backgrounds to use semi-transparent dark overlays ensuring mission information, requirements, and rewards remain clearly readable against the background image."
-        },
-        {
-          "path": "frontend/src/pages/StatsPage.tsx",
-          "operation": "modify",
-          "description": "Update stat allocation UI containers and cards to use semi-transparent dark overlays ensuring stat information and controls maintain visibility against the background image."
-        },
-        {
-          "path": "frontend/src/pages/SkillsPage.tsx",
-          "operation": "modify",
-          "description": "Update skill card backgrounds to use semi-transparent dark overlays ensuring skill information, requirements, and unlock status remain clearly readable against the background image."
+          "path": "frontend/src/components/profile/AccountDeletionDialog.tsx",
+          "operation": "create",
+          "description": "Create confirmation dialog component using shadcn/ui Dialog component. Display warning message explaining that account deletion is permanent and will delete all progress including tasks, missions, stats, and skills. Include two buttons: Cancel (closes dialog) and Confirm Delete (styled with destructive/danger colors). Accept onConfirm callback prop to trigger deletion. Use consistent styling with existing dialogs in the codebase."
         },
         {
           "path": "frontend/src/pages/ProfileSettingsPage.tsx",
           "operation": "modify",
-          "description": "Update profile information containers to use semi-transparent dark overlays ensuring user profile data maintains readability against the background image."
+          "description": "Add Delete Account button section at the bottom of the profile page with warning/danger styling (red color scheme). Import and render AccountDeletionDialog component with state to control open/close. Wire the dialog's onConfirm to trigger the account deletion mutation. After successful deletion, call Internet Identity clear() function to logout and navigate to landing page using the app's navigation system."
         },
         {
-          "path": "frontend/src/pages/LandingPage.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update hero section and feature cards to use semi-transparent dark overlays ensuring marketing content and login button remain clearly visible against the background image."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Update font colors to white or near-white tones for visibility against dark background",
-      "acceptanceCriteria": [
-        "Primary text uses white or near-white colors (e.g., rgb(255, 255, 255) or rgba(255, 255, 255, 0.9))",
-        "All text elements are clearly readable against the background image",
-        "Text contrast meets accessibility standards for dark backgrounds",
-        "Secondary text uses lighter shades (e.g., rgba(255, 255, 255, 0.7)) while maintaining readability"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Update the Tailwind color theme to ensure primary text colors use white or near-white values (rgb(255, 255, 255) or rgba(255, 255, 255, 0.9)) and secondary text uses rgba(255, 255, 255, 0.7). Modify the foreground color definitions in the dark theme section to ensure all text elements meet accessibility contrast standards for dark backgrounds."
+          "description": "Add useDeleteAccount mutation hook that calls actor.deleteAccount(). Include onSuccess callback to clear query cache, logout via Internet Identity clear(), and show success toast. Include onError callback to show error toast with appropriate message. Follow existing mutation patterns in the file."
         },
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add global text color overrides using CSS custom properties to set --text-primary to rgba(255, 255, 255, 0.95), --text-secondary to rgba(255, 255, 255, 0.75), and --text-muted to rgba(255, 255, 255, 0.6). Apply these variables to body text, headings, and common text classes to ensure consistent white/near-white text visibility across the application."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Update text color classes in navigation links, header text, and footer text to use white or near-white colors (text-white or text-white/95) ensuring all navigation elements are clearly readable against the dark background."
-        },
-        {
-          "path": "frontend/src/components/profile/ProfileSetupDialog.tsx",
-          "operation": "modify",
-          "description": "Update text colors in the profile setup dialog to use white or near-white tones ensuring the nickname input label, helper text, and dialog content are clearly visible."
-        },
-        {
-          "path": "frontend/src/components/auth/LoginButton.tsx",
-          "operation": "modify",
-          "description": "Ensure login button text uses appropriate white or near-white colors when displayed on dark backgrounds for visibility against the background image."
+          "description": "Ensure that after logout (identity becomes null), the app properly redirects to LandingPage. Verify the existing authentication flow handles the logout-after-deletion scenario correctly, showing LandingPage when identity is cleared."
         }
       ]
     }

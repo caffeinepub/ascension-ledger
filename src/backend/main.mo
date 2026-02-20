@@ -1,15 +1,14 @@
-import Time "mo:core/Time";
-import Text "mo:core/Text";
-import Map "mo:core/Map";
-import Array "mo:core/Array";
-import Int "mo:core/Int";
-import Nat "mo:core/Nat";
-import Runtime "mo:core/Runtime";
-import Order "mo:core/Order";
-import Iter "mo:core/Iter";
-import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import Map "mo:core/Map";
+import Nat "mo:core/Nat";
+import Runtime "mo:core/Runtime";
+import Text "mo:core/Text";
+import Array "mo:core/Array";
+import Int "mo:core/Int";
+import Time "mo:core/Time";
+import Order "mo:core/Order";
+import Principal "mo:core/Principal";
 
 actor {
   // --- Types ---
@@ -22,6 +21,33 @@ actor {
     level : Nat;
     typeIndex : Nat;
     stats : StatArray;
+  };
+
+  public type DailyTask = {
+    id : Text;
+    description : Text;
+    xpReward : Nat;
+    coinReward : Nat;
+  };
+
+  public type CustomTask = {
+    id : Text;
+    title : Text;
+    points : Nat;
+    attributePoints : Nat;
+  };
+
+  public type CustomTaskWithStatus = {
+    id : Text;
+    title : Text;
+    points : Nat;
+    attributePoints : Nat;
+    completed : Bool;
+  };
+
+  public type DailyTaskRecommendation = {
+    completed : [DailyTask];
+    incomplete : [DailyTask];
   };
 
   type ExpDrop = {
@@ -41,6 +67,8 @@ actor {
     mobStats : StatArray;
     loot : ?Loot;
   };
+
+  public type QuestionnaireAnswers = [Text];
 
   type Player = {
     principal : Principal;
@@ -90,6 +118,9 @@ actor {
     completedMissions : [Text];
     lastMissionCompletionTime : CooldownArray;
     unlockedSkills : [Text];
+    questionnaireAnswers : QuestionnaireAnswers;
+    completedDailyTasks : [Text];
+    credits : Nat;
   };
 
   public type UserProfileInternal = {
@@ -104,6 +135,9 @@ actor {
     completedMissions : [Text];
     lastMissionCompletionTime : Map.Map<Text, Time.Time>;
     unlockedSkills : [Text];
+    questionnaireAnswers : QuestionnaireAnswers;
+    completedDailyTasks : [Text];
+    customTaskStatus : Map.Map<Text, Bool>;
   };
 
   // --- Globals ---
@@ -125,16 +159,19 @@ actor {
   let mobTypeIndexMap = buildMobTypeIndexMap();
 
   let statNamesArray : [Text] = [
-    "Strength",
-    "Agility",
-    "Vitality",
-    "Focus",
-    "Spirit",
-    "Charisma",
-    "Intuition",
-    "Intelligence",
-    "Perception",
-    "Speed",
+    "Academics",
+    "Creativity",
+    "Fitness",
+    "Health",
+    "Life Skills",
+    "Mental Health",
+    "Productivity",
+    "Relationship Building",
+    "Self Awareness",
+    "Self Care",
+    "Social Awareness",
+    "Wealth",
+    "Work",
   ];
 
   let _statShortNamesArray : [Text] = [
@@ -157,10 +194,16 @@ actor {
   let profiles = Map.empty<Principal, UserProfileInternal>();
 
   let missions = Map.empty<Text, Mission>();
-  let skills = Map.empty<Text, Skill>();
+  let skills : Map.Map<Text, Skill> = Map.empty();
+
+  let dailyTasks = Map.empty<Text, DailyTask>();
+  var customTasks = Map.empty<Principal, Map.Map<Text, CustomTask>>();
 
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+
+  // --- Constants ---
+  let MAX_ATTRIBUTE_POINTS_PER_TASK : Nat = 10;
 
   // --- Initialization ---
 
@@ -185,6 +228,28 @@ actor {
       requirements = { minLevel = 1 };
     });
 
+    // Physical Skills
+    skills.add("strength_training", {
+      id = "strength_training";
+      name = "Strength Training";
+      description = "Increases your physical strength and endurance";
+      requirements = {
+        minLevel = 2;
+        minStats = [(2, 15)];
+      };
+    });
+
+    // Mental Skills
+    skills.add("improved_focus", {
+      id = "improved_focus";
+      name = "Improved Focus";
+      description = "Enhances your ability to concentrate and stay on task";
+      requirements = {
+        minLevel = 2;
+        minStats = [(3, 15)];
+      };
+    });
+
     skills.add("power_strike", {
       id = "power_strike";
       name = "Power Strike";
@@ -204,7 +269,74 @@ actor {
         minStats = [(1, 15)];
       };
     });
+
+    // Social Skills
+    skills.add("active_listening", {
+      id = "active_listening";
+      name = "Active Listening";
+      description = "Enhances communication and understanding in conversations";
+      requirements = {
+        minLevel = 2;
+        minStats = [(7, 10)];
+      };
+    });
+
+    // Creative Skills
+    skills.add("creative_writing", {
+      id = "creative_writing";
+      name = "Creative Writing";
+      description = "Improves your ability to express ideas creatively";
+      requirements = {
+        minLevel = 2;
+        minStats = [(1, 12)];
+      };
+    });
+
+    // Financial Skills
+    skills.add("budgeting", {
+      id = "budgeting";
+      name = "Budgeting";
+      description = "Teaches financial planning and money management";
+      requirements = {
+        minLevel = 2;
+        minStats = [(11, 10)];
+      };
+    });
+
+    // Health Skills
+    skills.add("nutrition_knowledge", {
+      id = "nutrition_knowledge";
+      name = "Nutrition Knowledge";
+      description = "Enhances understanding of healthy eating habits";
+      requirements = {
+        minLevel = 2;
+        minStats = [(3, 10)];
+      };
+    });
+
+    // Learning Skills
+    skills.add("speed_reading", {
+      id = "speed_reading";
+      name = "Speed Reading";
+      description = "Improves reading comprehension and speed";
+      requirements = {
+        minLevel = 2;
+        minStats = [(0, 12)];
+      };
+    });
+
+    // Personal Care Skills
+    skills.add("time_management", {
+      id = "time_management";
+      name = "Time Management";
+      description = "Enhances productivity and efficiency";
+      requirements = {
+        minLevel = 2;
+        minStats = [(6, 12)];
+      };
+    });
   };
+
   initializeMissionsAndSkills();
 
   func calculateXpToNextLevel(level : Nat) : Nat {
@@ -217,7 +349,7 @@ actor {
   };
 
   func createDefaultProfile(_caller : Principal, nickname : Text) : UserProfileInternal {
-    let startingStats = Array.tabulate<Int>(10, func(_) { 10 });
+    let startingStats = Array.tabulate<Int>(13, func(_) { 10 });
     {
       nickname;
       level = 1;
@@ -230,6 +362,9 @@ actor {
       completedMissions = [];
       lastMissionCompletionTime = Map.empty<Text, Time.Time>();
       unlockedSkills = [];
+      questionnaireAnswers = [];
+      completedDailyTasks = [];
+      customTaskStatus = Map.empty<Text, Bool>();
     };
   };
 
@@ -247,38 +382,433 @@ actor {
       completedMissions = internal.completedMissions;
       lastMissionCompletionTime = cooldownArray;
       unlockedSkills = internal.unlockedSkills;
+      questionnaireAnswers = internal.questionnaireAnswers;
+      completedDailyTasks = internal.completedDailyTasks;
+      credits = internal.coins;
+    };
+  };
+
+  // --- Custom Tasks Methods ---
+
+  public shared ({ caller }) func createCustomTask(title : Text, points : Nat, attributePoints : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can create custom tasks");
+    };
+
+    // Validate attributePoints to prevent abuse
+    if (attributePoints > MAX_ATTRIBUTE_POINTS_PER_TASK) {
+      Runtime.trap("Attribute points cannot exceed " # MAX_ATTRIBUTE_POINTS_PER_TASK.toText() # " per task");
+    };
+
+    let newTask = {
+      id = Time.now().toText();
+      title;
+      points;
+      attributePoints;
+    };
+
+    let existingUserTasks = switch (customTasks.get(caller)) {
+      case (null) {
+        let newMap = Map.empty<Text, CustomTask>();
+        customTasks.add(caller, newMap);
+        newMap;
+      };
+      case (?tasks) { tasks };
+    };
+
+    existingUserTasks.add(newTask.id, newTask);
+  };
+
+  public query ({ caller }) func getCustomTasks() : async [CustomTaskWithStatus] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can view custom tasks");
+    };
+
+    let tasks = switch (customTasks.get(caller)) {
+      case (null) { Map.empty<Text, CustomTask>() };
+      case (?tasks) { tasks };
+    };
+
+    let profile = switch (profiles.get(caller)) {
+      case (null) { Map.empty<Text, Bool>() };
+      case (?profile) { profile.customTaskStatus };
+    };
+
+    let tasksWithStatus = tasks.toArray().map(
+      func((_, task)) {
+        {
+          id = task.id;
+          title = task.title;
+          points = task.points;
+          attributePoints = task.attributePoints;
+          completed = switch (profile.get(task.id)) {
+            case (null) { false };
+            case (?status) { status };
+          };
+        };
+      }
+    );
+    tasksWithStatus;
+  };
+
+  public query ({ caller }) func getUserCustomTasks(user : Principal) : async [CustomTaskWithStatus] {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own custom tasks");
+    };
+
+    let tasks = switch (customTasks.get(user)) {
+      case (null) { Map.empty<Text, CustomTask>() };
+      case (?tasks) { tasks };
+    };
+
+    let profile = switch (profiles.get(user)) {
+      case (null) { Map.empty<Text, Bool>() };
+      case (?profile) { profile.customTaskStatus };
+    };
+
+    let tasksWithStatus = tasks.toArray().map(
+      func((_, task)) {
+        {
+          id = task.id;
+          title = task.title;
+          points = task.points;
+          attributePoints = task.attributePoints;
+          completed = switch (profile.get(task.id)) {
+            case (null) { false };
+            case (?status) { status };
+          };
+        };
+      }
+    );
+    tasksWithStatus;
+  };
+
+  public shared ({ caller }) func deleteCustomTask(taskId : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can delete custom tasks");
+    };
+
+    // Get the user's tasks
+    let userTasks = switch (customTasks.get(caller)) {
+      case (null) { Runtime.trap("No custom tasks found for user") };
+      case (?tasks) { tasks };
+    };
+
+    // Verify the task exists and belongs to the caller
+    switch (userTasks.get(taskId)) {
+      case (null) { Runtime.trap("Custom task not found: " # taskId) };
+      case (?_task) {
+        // Task exists and belongs to caller, proceed with deletion
+        userTasks.remove(taskId);
+      };
+    };
+  };
+
+  public shared ({ caller }) func toggleCustomTaskCompletion(taskId : Text, completed : Bool) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can toggle custom task completion");
+    };
+
+    // Verify the task belongs to the caller
+    let userTasks = switch (customTasks.get(caller)) {
+      case (null) { Runtime.trap("No custom tasks found for user") };
+      case (?tasks) { tasks };
+    };
+
+    let task = switch (userTasks.get(taskId)) {
+      case (null) { Runtime.trap("Custom task not found: " # taskId) };
+      case (?t) { t };
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) { Runtime.trap("Profile not found. Please initialize your profile first.") };
+      case (?profile) {
+        let previousStatus = switch (profile.customTaskStatus.get(taskId)) {
+          case (null) { false };
+          case (?status) { status };
+        };
+
+        let updatedStatus = profile.customTaskStatus;
+        updatedStatus.add(taskId, completed);
+
+        var updatedXp = profile.xp;
+        var updatedCoins = profile.coins;
+        var updatedLevel = profile.level;
+        var updatedUnspentPoints = profile.unspentStatPoints;
+        var xpToNext = profile.xpToNextLevel;
+
+        // Award points only when marking as completed (and wasn't completed before)
+        if (completed and not previousStatus) {
+          updatedXp += task.points;
+          updatedCoins += task.points;
+          updatedUnspentPoints += task.attributePoints;
+
+          // Handle level up
+          while (updatedXp >= xpToNext) {
+            updatedXp -= xpToNext;
+            updatedLevel += 1;
+            updatedUnspentPoints += 5;
+            xpToNext := calculateXpToNextLevel(updatedLevel);
+          };
+        };
+
+        let updatedProfile : UserProfileInternal = {
+          nickname = profile.nickname;
+          level = updatedLevel;
+          xp = updatedXp;
+          xpToNextLevel = xpToNext;
+          stats = profile.stats;
+          unspentStatPoints = updatedUnspentPoints;
+          inventory = profile.inventory;
+          coins = updatedCoins;
+          completedMissions = profile.completedMissions;
+          lastMissionCompletionTime = profile.lastMissionCompletionTime;
+          unlockedSkills = profile.unlockedSkills;
+          questionnaireAnswers = profile.questionnaireAnswers;
+          completedDailyTasks = profile.completedDailyTasks;
+          customTaskStatus = updatedStatus;
+        };
+        profiles.add(caller, updatedProfile);
+      };
+    };
+  };
+
+  // --- Profile Modification ---
+
+  public shared ({ caller }) func updateUsername(newUsername : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update username");
+    };
+
+    if (newUsername.size() == 0) {
+      Runtime.trap("Username cannot be empty");
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) { Runtime.trap("Profile not found. Cannot update username.") };
+      case (?profile) {
+        let updatedProfile : UserProfileInternal = {
+          profile with
+          nickname = newUsername;
+        };
+        profiles.add(caller, updatedProfile);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteAccount() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete accounts");
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) {
+        Runtime.trap("Profile not found. Cannot delete account.");
+      };
+      case (?_) {
+        // Remove player profile and associated data
+        profiles.remove(caller);
+        // Remove custom tasks if any
+        customTasks.remove(caller);
+      };
+    };
+  };
+
+  // --- Daily Tasks Methods ---
+
+  public shared ({ caller }) func getDailyTaskRecommendations() : async DailyTaskRecommendation {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get daily task recommendations");
+    };
+
+    let profile = switch (profiles.get(caller)) {
+      case (?p) { p };
+      case (null) { Runtime.trap("Profile not found. Please initialize your profile first.") };
+    };
+
+    let today = Time.now();
+    let dayInNanos = 86_400_000_000_000;
+    let allTasks = dailyTasks.toArray().map(func((_, task)) { task });
+    let completedToday = profile.completedDailyTasks.filter(func(taskId) {
+      switch (profile.lastMissionCompletionTime.get(taskId)) {
+        case (?lastTime) { today - lastTime < dayInNanos };
+        case (null) { false };
+      };
+    });
+    let incomplete = allTasks.filter(
+      func(task) {
+        if (completedToday.find(func(id) { id == task.id }) != null) { false } else { true };
+      }
+    );
+    {
+      completed = allTasks.filter(func(task) { completedToday.find(func(id) { id == task.id }) != null });
+      incomplete;
+    };
+  };
+
+  public shared ({ caller }) func markDailyTaskCompleted(taskId : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can complete daily tasks");
+    };
+
+    let profile = switch (profiles.get(caller)) {
+      case (?p) { p };
+      case (null) { Runtime.trap("Profile not found. Please initialize your profile first.") };
+    };
+
+    let task = switch (dailyTasks.get(taskId)) {
+      case (?t) { t };
+      case (null) { Runtime.trap("Daily task not found: " # taskId) };
+    };
+
+    // Check if already completed today
+    let today = Time.now();
+    let dayInNanos = 86_400_000_000_000;
+    switch (profile.lastMissionCompletionTime.get(taskId)) {
+      case (?lastTime) {
+        if (today - lastTime < dayInNanos) {
+          Runtime.trap("Daily task already completed today");
+        };
+      };
+      case (null) {};
+    };
+
+    // Award XP and coins
+    var updatedXp = profile.xp + task.xpReward;
+    var updatedCoins = profile.coins + task.coinReward;
+    var updatedLevel = profile.level;
+    var updatedUnspentPoints = profile.unspentStatPoints;
+    var xpToNext = profile.xpToNextLevel;
+
+    // Handle level up
+    while (updatedXp >= xpToNext) {
+      updatedXp -= xpToNext;
+      updatedLevel += 1;
+      updatedUnspentPoints += 5;
+      xpToNext := calculateXpToNextLevel(updatedLevel);
+    };
+
+    // Update completion tracking
+    let updatedCompletionTimes = profile.lastMissionCompletionTime;
+    updatedCompletionTimes.add(taskId, today);
+
+    let alreadyInList = profile.completedDailyTasks.find(func(id) { id == taskId }) != null;
+    let updatedCompletedTasks = if (not alreadyInList) {
+      let completedTasks = profile.completedDailyTasks;
+      Array.tabulate(completedTasks.size() + 1, func(i) { 
+        if (i < completedTasks.size()) { completedTasks[i] } else { taskId } 
+      });
+    } else {
+      profile.completedDailyTasks;
+    };
+
+    let updatedProfile : UserProfileInternal = {
+      nickname = profile.nickname;
+      level = updatedLevel;
+      xp = updatedXp;
+      xpToNextLevel = xpToNext;
+      stats = profile.stats;
+      unspentStatPoints = updatedUnspentPoints;
+      inventory = profile.inventory;
+      coins = updatedCoins;
+      completedMissions = profile.completedMissions;
+      lastMissionCompletionTime = updatedCompletionTimes;
+      unlockedSkills = profile.unlockedSkills;
+      questionnaireAnswers = profile.questionnaireAnswers;
+      completedDailyTasks = updatedCompletedTasks;
+      customTaskStatus = profile.customTaskStatus;
+    };
+
+    profiles.add(caller, updatedProfile);
+  };
+
+  // --- Questionnaire Methods ---
+
+  public shared ({ caller }) func submitQuestionnaireAnswers(answers : QuestionnaireAnswers) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can submit questionnaire answers");
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) {
+        Runtime.trap("Profile not found. Please initialize your profile first.");
+      };
+      case (?profile) {
+        let updatedProfile : UserProfileInternal = {
+          profile with
+          questionnaireAnswers = answers;
+        };
+        profiles.add(caller, updatedProfile);
+      };
+    };
+  };
+
+  public query ({ caller }) func getQuestionnaireAnswers() : async ?QuestionnaireAnswers {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view questionnaire answers");
+    };
+
+    switch (profiles.get(caller)) {
+      case (null) { null };
+      case (?profile) { ?profile.questionnaireAnswers };
     };
   };
 
   // --- Profile Management ---
 
-  func getCallerUserProfileInternal(caller : Principal) : ?UserProfileInternal {
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
     };
-    profiles.get(caller);
+    switch (profiles.get(caller)) {
+      case (?profile) { ?toUserProfile(profile) };
+      case (null) { null };
+    };
   };
 
-  func getUserProfileInternal(caller : Principal, user : Principal) : ?UserProfileInternal {
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
-    profiles.get(user);
+    switch (profiles.get(user)) {
+      case (?profile) { ?toUserProfile(profile) };
+      case (null) { null };
+    };
   };
 
-  func saveCallerUserProfileInternal(profile : UserProfileInternal, caller : Principal) {
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
-    profiles.add(caller, profile);
+    let existingProfile = switch (profiles.get(caller)) {
+      case (?p) { p };
+      case (null) { Runtime.trap("Profile not found. Please initialize your profile first.") };
+    };
+    let internalProfile : UserProfileInternal = {
+      nickname = profile.nickname;
+      level = profile.level;
+      xp = profile.xp;
+      xpToNextLevel = profile.xpToNextLevel;
+      stats = profile.stats;
+      unspentStatPoints = profile.unspentStatPoints;
+      inventory = profile.inventory;
+      coins = profile.coins;
+      completedMissions = profile.completedMissions;
+      lastMissionCompletionTime = existingProfile.lastMissionCompletionTime;
+      unlockedSkills = profile.unlockedSkills;
+      questionnaireAnswers = profile.questionnaireAnswers;
+      completedDailyTasks = profile.completedDailyTasks;
+      customTaskStatus = existingProfile.customTaskStatus;
+    };
+    profiles.add(caller, internalProfile);
   };
 
-  func initializeProfileInternal(nickname : Text, caller : Principal) : UserProfileInternal {
+  public shared ({ caller }) func initializeProfile(nickname : Text) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can initialize profiles");
     };
 
-    switch (profiles.get(caller)) {
+    let profile = switch (profiles.get(caller)) {
       case (?existing) { existing };
       case (null) {
         let newProfile = createDefaultProfile(caller, nickname);
@@ -286,11 +816,12 @@ actor {
         newProfile;
       };
     };
+    toUserProfile(profile);
   };
 
   // --- XP & Level-Up ---
 
-  func addXpInternal(amount : Nat, caller : Principal) : UserProfileInternal {
+  public shared ({ caller }) func addXp(amount : Nat) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can add XP");
     };
@@ -322,17 +853,20 @@ actor {
           completedMissions = profile.completedMissions;
           lastMissionCompletionTime = profile.lastMissionCompletionTime;
           unlockedSkills = profile.unlockedSkills;
+          questionnaireAnswers = profile.questionnaireAnswers;
+          completedDailyTasks = profile.completedDailyTasks;
+          customTaskStatus = profile.customTaskStatus;
         };
 
         profiles.add(caller, updatedProfile);
-        updatedProfile;
+        toUserProfile(updatedProfile);
       };
     };
   };
 
   // --- Stat Allocation ---
 
-  func allocateStatsInternal(statAllocations : [(Nat, Int)], caller : Principal) : UserProfileInternal {
+  public shared ({ caller }) func allocateStats(statAllocations : [(Nat, Int)]) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can allocate stats");
     };
@@ -369,28 +903,28 @@ actor {
         };
 
         profiles.add(caller, updatedProfile);
-        updatedProfile;
+        toUserProfile(updatedProfile);
       };
     };
   };
 
   // --- Missions ---
 
-  func listMissionsInternal(caller : Principal) : [Mission] {
+  public query ({ caller }) func listMissions() : async [Mission] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can list missions");
     };
     missions.values().toArray();
   };
 
-  func getMissionInternal(missionId : Text, caller : Principal) : ?Mission {
+  public query ({ caller }) func getMission(missionId : Text) : async ?Mission {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view missions");
     };
     missions.get(missionId);
   };
 
-  func completeMissionInternal(missionId : Text, caller : Principal) : UserProfileInternal {
+  public shared ({ caller }) func completeMission(missionId : Text) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can complete missions");
     };
@@ -457,10 +991,13 @@ actor {
               completedMissions = newCompletedMissions;
               lastMissionCompletionTime = newCompletionTimes;
               unlockedSkills = profile.unlockedSkills;
+              questionnaireAnswers = profile.questionnaireAnswers;
+              completedDailyTasks = profile.completedDailyTasks;
+              customTaskStatus = profile.customTaskStatus;
             };
 
             profiles.add(caller, updatedProfile);
-            updatedProfile;
+            toUserProfile(updatedProfile);
           };
         };
       };
@@ -469,14 +1006,14 @@ actor {
 
   // --- Skills ---
 
-  func listSkillsInternal(caller : Principal) : [Skill] {
+  public query ({ caller }) func listSkills() : async [Skill] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can list skills");
     };
     skills.values().toArray();
   };
 
-  func getSkillInternal(skillId : Text, caller : Principal) : ?Skill {
+  public query ({ caller }) func getSkill(skillId : Text) : async ?Skill {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view skills");
     };
@@ -497,7 +1034,7 @@ actor {
     true;
   };
 
-  func unlockSkillInternal(skillId : Text, caller : Principal) : UserProfileInternal {
+  public shared ({ caller }) func unlockSkill(skillId : Text) : async UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can unlock skills");
     };
@@ -531,66 +1068,17 @@ actor {
               completedMissions = profile.completedMissions;
               lastMissionCompletionTime = profile.lastMissionCompletionTime;
               unlockedSkills = newUnlockedSkills;
+              questionnaireAnswers = profile.questionnaireAnswers;
+              completedDailyTasks = profile.completedDailyTasks;
+              customTaskStatus = profile.customTaskStatus;
             };
 
             profiles.add(caller, updatedProfile);
-            updatedProfile;
+            toUserProfile(updatedProfile);
           };
         };
       };
     };
-  };
-
-  // --- Public Interface ---
-
-  public shared ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    switch (getCallerUserProfileInternal(caller)) {
-      case (?profile) { ?toUserProfile(profile) };
-      case (null) { null };
-    };
-  };
-
-  public shared ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    switch (getUserProfileInternal(caller, user)) {
-      case (?profile) { ?toUserProfile(profile) };
-      case (null) { null };
-    };
-  };
-
-  public shared ({ caller }) func initializeProfile(nickname : Text) : async UserProfile {
-    toUserProfile(initializeProfileInternal(nickname, caller));
-  };
-
-  public shared ({ caller }) func addXp(amount : Nat) : async UserProfile {
-    toUserProfile(addXpInternal(amount, caller));
-  };
-
-  public shared ({ caller }) func allocateStats(statAllocations : [(Nat, Int)]) : async UserProfile {
-    toUserProfile(allocateStatsInternal(statAllocations, caller));
-  };
-
-  public shared ({ caller }) func listMissions() : async [Mission] {
-    listMissionsInternal(caller);
-  };
-
-  public shared ({ caller }) func getMission(missionId : Text) : async ?Mission {
-    getMissionInternal(missionId, caller);
-  };
-
-  public shared ({ caller }) func completeMission(missionId : Text) : async UserProfile {
-    toUserProfile(completeMissionInternal(missionId, caller));
-  };
-
-  public shared ({ caller }) func listSkills() : async [Skill] {
-    listSkillsInternal(caller);
-  };
-
-  public shared ({ caller }) func getSkill(skillId : Text) : async ?Skill {
-    getSkillInternal(skillId, caller);
-  };
-
-  public shared ({ caller }) func unlockSkill(skillId : Text) : async UserProfile {
-    toUserProfile(unlockSkillInternal(skillId, caller));
   };
 
   // --- Remaining Functions ---
@@ -600,24 +1088,10 @@ actor {
     stats : [Int];
   };
 
-  func getPermissions(caller : Principal, requiredRole : AccessControl.UserRole) {
-    if (not (AccessControl.hasPermission(accessControlState, caller, requiredRole))) {
-      switch (requiredRole) {
-        case (#user) {
-          Runtime.trap("Unauthorized: Only users can perform this action");
-        };
-        case (#admin) {
-          Runtime.trap("Unauthorized: Only admins can perform this action");
-        };
-        case (#guest) {
-          Runtime.trap("Unauthorized: Guests cannot perform this action");
-        };
-      };
-    };
-  };
-
   public shared ({ caller }) func rollDie(sides : Nat) : async Nat {
-    getPermissions(caller, #user);
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can roll dice");
+    };
     let randomInt = sides.toInt();
     switch (randomInt) {
       case (0) { 1 };
@@ -625,8 +1099,10 @@ actor {
     };
   };
 
-  func getDamageInternal(caller : Principal, damageStats : [Int]) : DamageResult {
-    getPermissions(caller, #user);
+  public shared ({ caller }) func getDamage(damageStats : [Int]) : async DamageResult {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can calculate damage");
+    };
 
     let size = damageStats.size();
     if (size != 10) {
@@ -644,11 +1120,10 @@ actor {
     damageResult;
   };
 
-  public shared ({ caller }) func getDamage(damageStats : [Int]) : async DamageResult {
-    getDamageInternal(caller, damageStats);
-  };
-
   public query ({ caller }) func getStatNames() : async StatNameArray {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view stat names");
+    };
     statNamesArray;
   };
 
@@ -659,15 +1134,23 @@ actor {
   };
 
   public query ({ caller }) func listAllMobs() : async [Mob] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list mobs");
+    };
     mobs.values().toArray().sort(Mob.compareByName);
   };
 
   public query ({ caller }) func listAllMobTypes() : async [(Nat, Text)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list mob types");
+    };
     mobTypeIndexMap.toArray();
   };
 
-  func getMobStatsInternal(caller : Principal, _mobTypeIndex : Nat, _level : Nat, _rangeRadius : Int) : StatArray {
-    getPermissions(caller, #user);
+  public shared ({ caller }) func getMobStats(_mobTypeIndex : Nat, _level : Nat, _rangeRadius : Int) : async StatArray {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get mob stats");
+    };
 
     let size = statNamesArray.size();
 
@@ -681,8 +1164,10 @@ actor {
     baseStats;
   };
 
-  func getStartingStatsInternal(caller : Principal, pointPool : Int, _rangeMin : Int, _rangeMax : Int) : StatArray {
-    getPermissions(caller, #user);
+  public shared ({ caller }) func getStartingStats(pointPool : Int, _rangeMin : Int, _rangeMax : Int) : async StatArray {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get starting stats");
+    };
 
     if (pointPool < 1 or pointPool > 96) {
       Runtime.trap("Point pool must be between 1 and 96. Received " # pointPool.toText());
@@ -697,8 +1182,10 @@ actor {
     );
   };
 
-  func getStatValueInternal(caller : Principal, _basicStats : StatArray, multipliers : StatArray, _statIndex : Nat) : ?Int {
-    getPermissions(caller, #user);
+  public shared ({ caller }) func getStatValue(_basicStats : StatArray, multipliers : StatArray, _statIndex : Nat) : async ?Int {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get stat values");
+    };
 
     if (multipliers.size() != 10) {
       Runtime.trap("Input array must have exactly 10 elements. Received " # multipliers.size().toText());
@@ -706,42 +1193,32 @@ actor {
     ?multipliers[0];
   };
 
-  func getDirectionFromCoordinatesInternal(caller : Principal, _currentPosition : (Nat, Nat), _targetPosition : (Nat, Nat)) : (Text, Text) {
-    getPermissions(caller, #user);
+  public shared ({ caller }) func getDirectionFromCoordinates(_currentPosition : (Nat, Nat), _targetPosition : (Nat, Nat)) : async (Text, Text) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can get directions");
+    };
     return ("up", "north");
   };
 
-  func addMissionInternal(mission : Mission, caller : Principal) {
-    getPermissions(caller, #admin);
+  public shared ({ caller }) func addMission(mission : Mission) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add missions");
+    };
     missions.add(mission.id, mission);
   };
 
-  func addSkillInternal(skill : Skill, caller : Principal) {
-    getPermissions(caller, #admin);
+  public shared ({ caller }) func addSkill(skill : Skill) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add skills");
+    };
     skills.add(skill.id, skill);
   };
 
-  public shared ({ caller }) func getMobStats(_mobTypeIndex : Nat, _level : Nat, _rangeRadius : Int) : async StatArray {
-    getMobStatsInternal(caller, _mobTypeIndex, _level, _rangeRadius);
-  };
-
-  public shared ({ caller }) func getStartingStats(pointPool : Int, _rangeMin : Int, _rangeMax : Int) : async StatArray {
-    getStartingStatsInternal(caller, pointPool, _rangeMin, _rangeMax);
-  };
-
-  public shared ({ caller }) func getStatValue(_basicStats : StatArray, multipliers : StatArray, _statIndex : Nat) : async ?Int {
-    getStatValueInternal(caller, _basicStats, multipliers, _statIndex);
-  };
-
-  public shared ({ caller }) func getDirectionFromCoordinates(_currentPosition : (Nat, Nat), _targetPosition : (Nat, Nat)) : async (Text, Text) {
-    getDirectionFromCoordinatesInternal(caller, _currentPosition, _targetPosition);
-  };
-
-  public shared ({ caller }) func addMission(mission : Mission) : async () {
-    addMissionInternal(mission, caller);
-  };
-
-  public shared ({ caller }) func addSkill(skill : Skill) : async () {
-    addSkillInternal(skill, caller);
+  public shared ({ caller }) func addDailyTask(task : DailyTask) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add daily tasks");
+    };
+    dailyTasks.add(task.id, task);
   };
 };
+

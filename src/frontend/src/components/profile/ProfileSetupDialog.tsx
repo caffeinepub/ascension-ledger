@@ -23,10 +23,14 @@ export function ProfileSetupDialog({ open }: ProfileSetupDialogProps) {
 
   return (
     <Dialog open={open}>
-      <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} style={{ background: 'rgba(0, 0, 0, 0.9)', backdropFilter: 'blur(12px)' }}>
+      <DialogContent 
+        className="w-[95vw] sm:w-full sm:max-w-md border-border/50 max-h-[85vh] overflow-y-auto" 
+        onPointerDownOutside={(e) => e.preventDefault()} 
+        style={{ background: 'rgba(0, 0, 0, 0.95)', backdropFilter: 'blur(16px)' }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-2xl text-white/95">{COPY.profileSetup.welcomeTitle}</DialogTitle>
-          <DialogDescription className="text-white/75">
+          <DialogTitle className="text-xl sm:text-2xl text-white/95">{COPY.profileSetup.welcomeTitle}</DialogTitle>
+          <DialogDescription className="text-sm sm:text-base text-white/75">
             {COPY.profileSetup.welcomeDescription}
           </DialogDescription>
           <p className="text-xs text-white/60 pt-2">
@@ -36,7 +40,7 @@ export function ProfileSetupDialog({ open }: ProfileSetupDialogProps) {
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="nickname" className="text-white/95">{COPY.profileSetup.nameLabel}</Label>
+              <Label htmlFor="nickname" className="text-sm sm:text-base text-white/95">{COPY.profileSetup.nameLabel}</Label>
               <Input
                 id="nickname"
                 placeholder={COPY.profileSetup.namePlaceholder}
@@ -44,7 +48,7 @@ export function ProfileSetupDialog({ open }: ProfileSetupDialogProps) {
                 onChange={(e) => setNickname(e.target.value)}
                 maxLength={30}
                 autoFocus
-                className="text-white/95"
+                className="min-h-[44px] text-base bg-black/40 border-white/20 text-white/95 placeholder:text-white/40"
               />
             </div>
           </div>
@@ -52,7 +56,7 @@ export function ProfileSetupDialog({ open }: ProfileSetupDialogProps) {
             <Button
               type="submit"
               disabled={!nickname.trim() || initializeProfile.isPending}
-              className="w-full"
+              className="w-full min-h-[44px]"
             >
               {initializeProfile.isPending ? COPY.profileSetup.creatingProfile : COPY.profileSetup.beginButton}
             </Button>

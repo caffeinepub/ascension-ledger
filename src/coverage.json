@@ -1,86 +1,73 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T03:33:56.949Z",
+  "generatedAt": "2026-02-20T08:18:00.497Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/index.css"
-        ],
-        "matchedFiles": [
-          "frontend/src/index.css"
-        ]
+        "summary": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure dark theme is maintained throughout the application with the new background",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/MissionsPage.tsx",
-          "frontend/src/pages/StatsPage.tsx",
-          "frontend/src/pages/SkillsPage.tsx",
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/pages/LandingPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/pages/DashboardPage.tsx",
-          "frontend/src/pages/MissionsPage.tsx",
-          "frontend/src/pages/StatsPage.tsx",
-          "frontend/src/pages/SkillsPage.tsx",
-          "frontend/src/pages/ProfileSettingsPage.tsx",
-          "frontend/src/pages/LandingPage.tsx"
-        ]
+        "summary": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+        "summary": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css",
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/profile/ProfileSetupDialog.tsx",
-          "frontend/src/components/auth/LoginButton.tsx"
+          "frontend/src/pages/ProfileSettingsPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/tailwind.config.js",
-          "frontend/src/index.css",
-          "frontend/src/components/layout/AppLayout.tsx",
-          "frontend/src/components/profile/ProfileSetupDialog.tsx"
+          "frontend/src/pages/ProfileSettingsPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/profile/AccountDeletionDialog.tsx",
+          "frontend/src/pages/ProfileSettingsPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/profile/AccountDeletionDialog.tsx",
+          "frontend/src/pages/ProfileSettingsPage.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/layout/AppLayout.tsx",
-    "frontend/src/components/profile/ProfileSetupDialog.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/DashboardPage.tsx",
-    "frontend/src/pages/LandingPage.tsx",
-    "frontend/src/pages/MissionsPage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/profile/AccountDeletionDialog.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/ProfileSettingsPage.tsx",
-    "frontend/src/pages/SkillsPage.tsx",
-    "frontend/src/pages/StatsPage.tsx",
-    "frontend/tailwind.config.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

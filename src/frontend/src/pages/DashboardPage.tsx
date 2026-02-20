@@ -4,6 +4,9 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Coins, Zap, Award } from 'lucide-react';
 import { COPY } from '../content/copy';
+import { RealTimeClock } from '../components/dashboard/RealTimeClock';
+import { DateCalendar } from '../components/dashboard/DateCalendar';
+import { DailyTasksSection } from '../components/dashboard/DailyTasksSection';
 
 export function DashboardPage() {
   const { data: profile } = useGetCallerUserProfile();
@@ -20,24 +23,35 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-lg border border-border" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
-        <div className="absolute inset-0 opacity-20">
+      {/* Hero Banner with Clock and Calendar */}
+      <div className="relative overflow-hidden rounded-lg border border-border/50" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
+        <div className="absolute inset-0 opacity-10">
           <img
             src="/assets/generated/dashboard-hero.dim_1600x600.png"
             alt=""
             className="h-full w-full object-cover"
           />
         </div>
-        <div className="relative p-8">
-          <h2 className="mb-2 text-3xl font-semibold text-white/95">{COPY.dashboard.welcomeBack}, {profile.nickname}</h2>
-          <p className="text-white/75">{COPY.dashboard.continueJourney}</p>
+        <div className="relative space-y-4 p-8">
+          <div>
+            <h2 className="mb-2 text-3xl font-semibold text-white/95">{COPY.dashboard.welcomeBack}, {profile.nickname}</h2>
+            <p className="text-white/75">{COPY.dashboard.continueJourney}</p>
+          </div>
+          
+          {/* Clock and Calendar */}
+          <div className="flex flex-wrap gap-4">
+            <RealTimeClock />
+            <DateCalendar />
+          </div>
         </div>
       </div>
 
+      {/* Daily Tasks Section */}
+      <DailyTasksSection />
+
       {/* Stats Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-primary/40 transition-colors hover:border-primary" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+        <Card className="border-primary/40 transition-colors hover:border-primary/60" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white/95">{COPY.dashboard.level}</CardTitle>
             <Award className="h-4 w-4 text-primary" />
@@ -48,7 +62,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-accent/40 transition-colors hover:border-accent" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+        <Card className="border-accent/40 transition-colors hover:border-accent/60" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white/95">{COPY.dashboard.experience}</CardTitle>
             <TrendingUp className="h-4 w-4 text-accent" />
@@ -61,7 +75,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-primary/40 transition-colors hover:border-primary" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+        <Card className="border-primary/40 transition-colors hover:border-primary/60" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white/95">{COPY.dashboard.coins}</CardTitle>
             <Coins className="h-4 w-4 text-primary" />
@@ -72,7 +86,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-accent/40 transition-colors hover:border-accent" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+        <Card className="border-accent/40 transition-colors hover:border-accent/60" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white/95">{COPY.dashboard.unspentPoints}</CardTitle>
             <Zap className="h-4 w-4 text-accent" />
@@ -85,7 +99,7 @@ export function DashboardPage() {
       </div>
 
       {/* XP Progress */}
-      <Card style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+      <Card style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }} className="border-border/50">
         <CardHeader>
           <CardTitle className="text-white/95">{COPY.dashboard.levelProgress}</CardTitle>
         </CardHeader>
@@ -101,7 +115,7 @@ export function DashboardPage() {
       </Card>
 
       {/* Quick Stats Summary */}
-      <Card style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+      <Card style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }} className="border-border/50">
         <CardHeader>
           <CardTitle className="text-white/95">{COPY.dashboard.progressionSummary}</CardTitle>
         </CardHeader>
@@ -110,22 +124,22 @@ export function DashboardPage() {
             <div className="space-y-2">
               <p className="text-sm font-medium text-white/75">{COPY.dashboard.missionsCompleted}</p>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{profile.completedMissions.length}</Badge>
+                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/40">{profile.completedMissions.length}</Badge>
                 <span className="text-sm text-white/75">total</span>
               </div>
             </div>
             <div className="space-y-2">
               <p className="text-sm font-medium text-white/75">{COPY.dashboard.skillsUnlocked}</p>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{profile.unlockedSkills.length}</Badge>
+                <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/40">{profile.unlockedSkills.length}</Badge>
                 <span className="text-sm text-white/75">active</span>
               </div>
             </div>
             <div className="space-y-2">
               <p className="text-sm font-medium text-white/75">{COPY.dashboard.inventoryItems}</p>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{profile.inventory.length}</Badge>
-                <span className="text-sm text-white/75">collected</span>
+                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/40">{profile.inventory.length}</Badge>
+                <span className="text-sm text-white/75">items</span>
               </div>
             </div>
           </div>

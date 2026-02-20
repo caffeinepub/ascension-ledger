@@ -1,35 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "CRYONEX app with custom background image, dark theme, and white font for visibility",
-  "architectural_notes": [
-    "App uses custom background image with dark theme",
-    "Font colors adjusted to white for visibility on dark background"
-  ],
+  "summary": "Project with user profile management features including username editing and account deletion",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-use-the-uploaded-image-img-20260219-080023-png-jpg-as-the-application-background-across-all-pages",
-      "title": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-dark-theme-is-maintained-throughout-the-application-with-the-new-background",
-      "title": "Ensure dark theme is maintained throughout the application with the new background",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-font-colors-to-white-or-near-white-tones-to-ensure-visibility-against-the-dark-background-image",
-      "title": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+      "id": "feature-add-username-edit-interface-to-the-profilesettingspage-with-an-editable-input-field-save-button-and-success-error-feedback-using-toast-notifications",
+      "title": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-account-deletion-button-to-profilesettingspage-with-confirmation-dialog-explaining-that-this-action-is-permanent-and-will-delete-all-progress-then-logout-and-redirect-to-landing-page-after-deletion",
+      "title": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -37,18 +26,34 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Use custom file as app background",
+      "summary": "Add option to edit username in profile page",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Maintain dark theme with white/visible font color",
+      "summary": "Add option to delete user account in profile page",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "CRYONEX",
+  "projectName": "Add username editing and account deletion to profile page",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

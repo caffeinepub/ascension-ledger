@@ -11,6 +11,23 @@ import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
 export type CooldownArray = Array<[string, Time]>;
+export interface CustomTaskWithStatus {
+  'id' : string,
+  'title' : string,
+  'completed' : boolean,
+  'attributePoints' : bigint,
+  'points' : bigint,
+}
+export interface DailyTask {
+  'id' : string,
+  'xpReward' : bigint,
+  'description' : string,
+  'coinReward' : bigint,
+}
+export interface DailyTaskRecommendation {
+  'incomplete' : Array<DailyTask>,
+  'completed' : Array<DailyTask>,
+}
 export interface DamageResult { 'damage' : bigint, 'stats' : Array<bigint> }
 export interface Mission {
   'id' : string,
@@ -29,6 +46,7 @@ export interface Mob {
   'typeIndex' : bigint,
   'stats' : StatArray,
 }
+export type QuestionnaireAnswers = Array<string>;
 export interface Skill {
   'id' : string,
   'name' : string,
@@ -44,13 +62,16 @@ export type StatNameArray = Array<string>;
 export type Time = bigint;
 export interface UserProfile {
   'xp' : bigint,
+  'credits' : bigint,
   'nickname' : string,
   'inventory' : Array<string>,
   'coins' : bigint,
   'unspentStatPoints' : bigint,
   'completedMissions' : Array<string>,
+  'completedDailyTasks' : Array<string>,
   'level' : bigint,
   'stats' : StatArray,
+  'questionnaireAnswers' : QuestionnaireAnswers,
   'xpToNextLevel' : bigint,
   'unlockedSkills' : Array<string>,
   'lastMissionCompletionTime' : CooldownArray,
@@ -60,14 +81,20 @@ export type UserRole = { 'admin' : null } |
   { 'guest' : null };
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'addDailyTask' : ActorMethod<[DailyTask], undefined>,
   'addMission' : ActorMethod<[Mission], undefined>,
   'addSkill' : ActorMethod<[Skill], undefined>,
   'addXp' : ActorMethod<[bigint], UserProfile>,
   'allocateStats' : ActorMethod<[Array<[bigint, bigint]>], UserProfile>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'completeMission' : ActorMethod<[string], UserProfile>,
+  'createCustomTask' : ActorMethod<[string, bigint, bigint], undefined>,
+  'deleteAccount' : ActorMethod<[], undefined>,
+  'deleteCustomTask' : ActorMethod<[string], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCustomTasks' : ActorMethod<[], Array<CustomTaskWithStatus>>,
+  'getDailyTaskRecommendations' : ActorMethod<[], DailyTaskRecommendation>,
   'getDamage' : ActorMethod<[Array<bigint>], DamageResult>,
   'getDirectionFromCoordinates' : ActorMethod<
     [[bigint, bigint], [bigint, bigint]],
@@ -75,10 +102,12 @@ export interface _SERVICE {
   >,
   'getMission' : ActorMethod<[string], [] | [Mission]>,
   'getMobStats' : ActorMethod<[bigint, bigint, bigint], StatArray>,
+  'getQuestionnaireAnswers' : ActorMethod<[], [] | [QuestionnaireAnswers]>,
   'getSkill' : ActorMethod<[string], [] | [Skill]>,
   'getStartingStats' : ActorMethod<[bigint, bigint, bigint], StatArray>,
   'getStatNames' : ActorMethod<[], StatNameArray>,
   'getStatValue' : ActorMethod<[StatArray, StatArray, bigint], [] | [bigint]>,
+  'getUserCustomTasks' : ActorMethod<[Principal], Array<CustomTaskWithStatus>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'initializeProfile' : ActorMethod<[string], UserProfile>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -86,8 +115,13 @@ export interface _SERVICE {
   'listAllMobs' : ActorMethod<[], Array<Mob>>,
   'listMissions' : ActorMethod<[], Array<Mission>>,
   'listSkills' : ActorMethod<[], Array<Skill>>,
+  'markDailyTaskCompleted' : ActorMethod<[string], undefined>,
   'rollDie' : ActorMethod<[bigint], bigint>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'submitQuestionnaireAnswers' : ActorMethod<[QuestionnaireAnswers], undefined>,
+  'toggleCustomTaskCompletion' : ActorMethod<[string, boolean], undefined>,
   'unlockSkill' : ActorMethod<[string], UserProfile>,
+  'updateUsername' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

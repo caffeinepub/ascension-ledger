@@ -1,73 +1,97 @@
 {
   "kind": "build_request",
-  "title": "Apply custom background image and improve text visibility",
+  "title": "Add username editing and account deletion to profile page",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
-      "target": "frontend",
+      "text": "Add backend function to update a user's username/nickname with validation to ensure the new username is not empty",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-final"
         ],
         "quotes": [
-          "Use this file as app background"
+          "Add a option to edit username in the profile page"
         ]
       },
       "acceptanceCriteria": [
-        "The uploaded image is displayed as a fixed background across all application pages",
-        "Background image maintains proper aspect ratio and covers the entire viewport",
-        "Background image does not interfere with content readability"
+        "Backend function accepts principal and new username as parameters",
+        "Function validates that username is not empty",
+        "Function updates the player's nickname in the backend state",
+        "Function returns success or error result"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure dark theme is maintained throughout the application with the new background",
-      "target": "frontend",
+      "text": "Add backend function to delete a user account, removing all associated player data including profile, tasks, missions progress, and stats",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-final"
         ],
         "quotes": [
-          "keep the dark theme"
+          "an option to delete the user account in the profile page"
         ]
       },
       "acceptanceCriteria": [
-        "All UI components maintain dark theme styling",
-        "Cards, panels, and overlays have dark backgrounds that contrast with the background image",
-        "Navigation elements preserve dark theme appearance"
+        "Backend function accepts principal as parameter",
+        "Function removes all player data from backend state",
+        "Function returns confirmation of deletion"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+      "text": "Add username edit interface to the ProfileSettingsPage with an editable input field, save button, and success/error feedback using toast notifications",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-user-final"
         ],
         "quotes": [
-          "make the font colour like a bit white make it visible in a black background"
+          "Add a option to edit username in the profile page"
         ]
       },
       "acceptanceCriteria": [
-        "Primary text uses white or near-white colors (e.g., rgb(255, 255, 255) or rgba(255, 255, 255, 0.9))",
-        "All text elements are clearly readable against the background image",
-        "Text contrast meets accessibility standards for dark backgrounds",
-        "Secondary text uses lighter shades (e.g., rgba(255, 255, 255, 0.7)) while maintaining readability"
+        "Profile page displays current username in an editable field",
+        "Save button triggers username update via backend mutation",
+        "Success toast appears when username is updated successfully",
+        "Error toast appears if update fails",
+        "Profile data refreshes after successful update"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add account deletion button to ProfileSettingsPage with confirmation dialog, explaining that this action is permanent and will delete all progress, then logout and redirect to landing page after deletion",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-final"
+        ],
+        "quotes": [
+          "an option to delete the user account in the profile page"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Delete account button is prominently displayed on profile page with warning styling",
+        "Clicking delete button opens confirmation dialog explaining permanent data loss",
+        "Confirmation dialog has cancel and confirm delete buttons",
+        "Upon confirmation, account deletion mutation is triggered",
+        "After successful deletion, user is logged out and redirected to landing page",
+        "Error toast appears if deletion fails"
       ]
     }
   ],
   "constraints": [
-    "Do not modify backend logic or data structures",
-    "Preserve existing sci-fi theme aesthetic while integrating the new background",
-    "Maintain all existing functionality and navigation"
+    "Username edit must maintain the same validation rules as initial profile setup",
+    "Account deletion must be irreversible and remove all user data",
+    "Both features must use the existing Internet Identity principal for authentication"
   ],
   "nonGoals": [
-    "Changing the color scheme beyond text visibility improvements",
-    "Modifying authentication or backend features",
-    "Altering the layout structure or component hierarchy"
+    "Username change history tracking",
+    "Account recovery or soft deletion",
+    "Data export before deletion",
+    "Email notifications for account changes"
   ],
   "imageRequirements": {
     "required": [],
