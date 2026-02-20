@@ -1,0 +1,76 @@
+{
+  "kind": "build_request",
+  "title": "Apply custom background image and improve text visibility",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Use this file as app background"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The uploaded image is displayed as a fixed background across all application pages",
+        "Background image maintains proper aspect ratio and covers the entire viewport",
+        "Background image does not interfere with content readability"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Ensure dark theme is maintained throughout the application with the new background",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "keep the dark theme"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All UI components maintain dark theme styling",
+        "Cards, panels, and overlays have dark backgrounds that contrast with the background image",
+        "Navigation elements preserve dark theme appearance"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "make the font colour like a bit white make it visible in a black background"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Primary text uses white or near-white colors (e.g., rgb(255, 255, 255) or rgba(255, 255, 255, 0.9))",
+        "All text elements are clearly readable against the background image",
+        "Text contrast meets accessibility standards for dark backgrounds",
+        "Secondary text uses lighter shades (e.g., rgba(255, 255, 255, 0.7)) while maintaining readability"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify backend logic or data structures",
+    "Preserve existing sci-fi theme aesthetic while integrating the new background",
+    "Maintain all existing functionality and navigation"
+  ],
+  "nonGoals": [
+    "Changing the color scheme beyond text visibility improvements",
+    "Modifying authentication or backend features",
+    "Altering the layout structure or component hierarchy"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

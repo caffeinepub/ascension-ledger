@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "CRYONEX app with custom background image, dark theme, and white font for visibility",
+  "architectural_notes": [
+    "App uses custom background image with dark theme",
+    "Font colors adjusted to white for visibility on dark background"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-use-the-uploaded-image-img-20260219-080023-png-jpg-as-the-application-background-across-all-pages",
+      "title": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-dark-theme-is-maintained-throughout-the-application-with-the-new-background",
+      "title": "Ensure dark theme is maintained throughout the application with the new background",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-font-colors-to-white-or-near-white-tones-to-ensure-visibility-against-the-dark-background-image",
+      "title": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Use custom file as app background",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Maintain dark theme with white/visible font color",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "CRYONEX",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

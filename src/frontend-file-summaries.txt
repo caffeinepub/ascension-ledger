@@ -1,0 +1,19 @@
+{
+  "frontend/src/App.tsx": "Main application component that handles authentication state, profile setup flow for all authentication methods including Google, and screen navigation between Dashboard, Missions, Stats, Skills, and Profile pages.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including profile management, stat allocation, mission completion, and skill unlocking with optimistic updates and error handling.",
+  "frontend/src/components/auth/LoginButton.tsx": "Login/logout button component with simplified styling that works with Internet Identity authentication, maintaining visibility with proper contrast.",
+  "frontend/src/components/profile/ProfileSetupDialog.tsx": "Profile setup dialog with semi-transparent dark background (rgba(0, 0, 0, 0.9)) and white/near-white text colors ensuring the nickname input and dialog content are clearly visible.",
+  "frontend/src/components/layout/AppLayout.tsx": "Main layout component with semi-transparent dark backgrounds (rgba(0, 0, 0, 0.8)) applied to header, sidebar, and footer with white/near-white text colors for visibility against the custom background image.",
+  "frontend/src/pages/LandingPage.tsx": "Landing page with semi-transparent dark overlays on hero section and feature cards, white/near-white text colors, using correct COPY property references (hero, description, feature1Title, etc.) for all text content.",
+  "frontend/src/pages/DashboardPage.tsx": "Dashboard page with semi-transparent dark card overlays (rgba(0, 0, 0, 0.75)) and white/near-white text colors ensuring all stats, progress bars, and content remain clearly readable against the background image.",
+  "frontend/src/pages/MissionsPage.tsx": "Missions page with semi-transparent dark card backgrounds and white/near-white text colors ensuring mission information, requirements, and rewards are clearly visible against the background image.",
+  "frontend/src/pages/StatsPage.tsx": "Stats allocation page with semi-transparent dark overlays on cards and containers, white/near-white text colors ensuring stat information and controls maintain visibility against the background image.",
+  "frontend/src/pages/SkillsPage.tsx": "Skills page with semi-transparent dark card backgrounds and white/near-white text colors ensuring skill information, requirements, and unlock status remain clearly readable against the background image.",
+  "frontend/src/pages/ProfileSettingsPage.tsx": "Profile settings page with semi-transparent dark overlays on all cards, white/near-white text colors, using correct COPY property references (profileInformation, name, progressSummary, accountActions) ensuring user profile data maintains readability against the background image.",
+  "frontend/src/content/copy.ts": "Centralized copy with CRYONEX branding, sci-fi terminology, and updated authentication messaging that mentions Google sign-in capability and identity security notes.",
+  "frontend/index.css": "Global styles with OKLCH color system using warm neutrals and ember/bronze accents for a dark-fantasy/urban RPG aesthetic.",
+  "frontend/tailwind.config.js": "Tailwind configuration with Inter font family, custom color tokens including white text color variables for enhanced visibility on dark backgrounds.",
+  "frontend/src/main.tsx": "Application entry point that sets up React Query and Internet Identity providers with correct relative CSS import path.",
+  "frontend/src/index.css": "Global styles with OKLCH color system, custom background image applied to body element with fixed positioning, and enhanced white/near-white text colors for dark theme visibility with semi-transparent overlay utility classes.",
+  "frontend/index.html": "HTML entry point with Google Fonts link for Inter font family."
+}

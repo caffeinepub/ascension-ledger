@@ -1,0 +1,72 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-use-the-uploaded-image-img-20260219-080023-png-jpg-as-the-application-background-across-all-pages",
+      "featureTitle": "Use the uploaded image IMG_20260219_080023.png.jpg as the application background across all pages",
+      "files": [
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-dark-theme-is-maintained-throughout-the-application-with-the-new-background",
+      "featureTitle": "Ensure dark theme is maintained throughout the application with the new background",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/index.css",
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend/src/pages/LandingPage.tsx",
+        "frontend/src/pages/MissionsPage.tsx",
+        "frontend/src/pages/ProfileSettingsPage.tsx",
+        "frontend/src/pages/SkillsPage.tsx",
+        "frontend/src/pages/StatsPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-font-colors-to-white-or-near-white-tones-to-ensure-visibility-against-the-dark-background-image",
+      "featureTitle": "Update font colors to white or near-white tones to ensure visibility against the dark background image",
+      "files": [
+        "frontend/src/components/layout/AppLayout.tsx",
+        "frontend/src/components/profile/ProfileSetupDialog.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
