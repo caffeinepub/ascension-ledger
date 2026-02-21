@@ -55,8 +55,8 @@ export function CustomMissionForm() {
       await createMission.mutateAsync({
         title: title.trim(),
         description: description.trim(),
-        xpReward,
-        coinReward,
+        xpReward: BigInt(xpReward),
+        coinReward: BigInt(coinReward),
       });
 
       // Reset form on success

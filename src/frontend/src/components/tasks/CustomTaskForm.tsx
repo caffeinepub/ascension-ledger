@@ -27,7 +27,11 @@ export function CustomTaskForm() {
       return;
     }
 
-    await createTask.mutateAsync({ title: title.trim(), points, attributePoints });
+    await createTask.mutateAsync({ 
+      title: title.trim(), 
+      points: BigInt(points), 
+      attributePoints: BigInt(attributePoints) 
+    });
     
     // Reset form
     setTitle('');

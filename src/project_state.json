@@ -4,11 +4,11 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-mission-log-history-view-in-the-frontend-that-displays-all-automated-daily-log-entries-with-date-completed-activities-and-rewards-earned",
-      "title": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
+      "id": "feature-update-the-frontend-dailytaskssection-component-to-automatically-refresh-and-display-newly-generated-tasks-when-they-become-available-at-midnight",
+      "title": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
       "reqIds": [
         "REQ-3"
       ],
@@ -18,13 +18,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "AI should automatically add tasks and update mission log daily at 12am",
+      "summary": "AI should automatically generate and assign tasks daily at 00:00:00",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Implement a daily timer mechanism that triggers at midnight (00:00:00 local time) to automatically generate new AI-recommended daily tasks",
+      "summary": "Implement a backend timer system that triggers at 00:00:00 UTC daily to automatically generate AI tasks for all users",
       "reqIds": [
         "REQ-1"
       ],
@@ -32,22 +32,14 @@
     },
     {
       "id": "AR-3",
-      "summary": "Create automated mission log entries at midnight that record daily activity summaries including completed tasks, missions accomplished, XP gained, and coins earned for that day",
+      "summary": "Ensure the daily task generation system handles timezone-independent execution and persists tasks immediately upon generation",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Enhance the AI task generation logic to consider user's historical completion patterns, time of day preferences, and previously completed tasks to provide more personalized daily recommendations",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
     }
   ],
-  "projectName": "Cryonex",
+  "projectName": "CRYONEX",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

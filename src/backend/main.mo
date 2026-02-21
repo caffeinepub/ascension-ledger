@@ -425,53 +425,7 @@ actor {
     };
   };
 
-  func generateAIMissionsInternal() : async () {
-    let aiMissionId = "ai_mission_" # Time.now().toText();
-    let aiMission : Mission = {
-      id = aiMissionId;
-      name = "AI Generated Mission";
-      description = "Complete this AI-generated challenge";
-      xpReward = 150;
-      coinReward = 75;
-      missionType = #daily;
-    };
-    missions.add(aiMissionId, aiMission);
-  };
-
-  func resetDailyTasksInternal() : async () {
-    let now = Time.now();
-    let dayInNanos = 86_400_000_000_000;
-
-    for ((user, profile) in profiles.entries()) {
-      let updatedCompletionTimes = Map.empty<Text, Time.Time>();
-
-      for ((taskId, completionTime) in profile.lastMissionCompletionTime.entries()) {
-        if (now - completionTime < dayInNanos) {
-          updatedCompletionTimes.add(taskId, completionTime);
-        };
-      };
-
-      let updatedCompletedDailyTasks = profile.completedDailyTasks.filter(func(taskId) {
-        switch (profile.lastMissionCompletionTime.get(taskId)) {
-          case (?lastTime) { now - lastTime < dayInNanos };
-          case (null) { false };
-        };
-      });
-
-      let updatedProfile : UserProfileInternal = {
-        profile with
-        lastMissionCompletionTime = updatedCompletionTimes;
-        completedDailyTasks = updatedCompletedDailyTasks;
-      };
-
-      profiles.add(user, updatedProfile);
-    };
-  };
-
   let MIDNIGHT_INTERVAL_NANOS : Nat = 86_400_000_000_000;
-
-  ignore Timer.recurringTimer<system>(#nanoseconds(MIDNIGHT_INTERVAL_NANOS), generateAIMissionsInternal);
-  ignore Timer.recurringTimer<system>(#nanoseconds(MIDNIGHT_INTERVAL_NANOS), resetDailyTasksInternal);
 
   public shared ({ caller }) func createCustomTask(title : Text, points : Nat, attributePoints : Nat) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
@@ -1427,3 +1381,4 @@ actor {
   };
 
 };
+

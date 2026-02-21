@@ -1,97 +1,67 @@
 {
   "kind": "build_request",
-  "title": "Implement automated daily AI task generation and mission log updates at midnight",
-  "projectName": "Cryonex",
+  "title": "Implement automated daily task generation at midnight",
+  "projectName": "CRYONEX",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a daily timer mechanism that triggers at midnight (00:00:00 local time) to automatically generate new AI-recommended daily tasks",
+      "text": "Implement a backend timer system that triggers at 00:00:00 UTC daily to automatically generate AI tasks for all users",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-6"
         ],
         "quotes": [
-          "perfect the ai to add tasks and mission log daily at 12am"
+          "make the ai give tasks every day at 00:00:00"
         ]
       },
       "acceptanceCriteria": [
-        "Timer triggers precisely at midnight each day",
-        "AI task generation is invoked automatically without user interaction",
-        "New daily tasks replace or append to existing daily tasks based on current completion status",
-        "System handles timezone considerations appropriately"
+        "Timer triggers precisely at 00:00:00 UTC each day",
+        "AI task generation is invoked automatically without manual intervention",
+        "All active users receive new daily tasks at midnight"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Create automated mission log entries at midnight that record daily activity summaries including completed tasks, missions accomplished, XP gained, and coins earned for that day",
+      "text": "Ensure the daily task generation system handles timezone-independent execution and persists tasks immediately upon generation",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "mission log daily at 12am"
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "Mission log entry is created automatically at midnight",
-        "Log captures all relevant daily metrics: completed tasks count, completed missions count, total XP earned, total coins earned",
-        "Log entries are timestamped with the date they represent",
-        "Log entries are persistent and retrievable for historical review"
+        "Task generation occurs at a consistent UTC time regardless of user timezones",
+        "Generated tasks are immediately persisted to stable storage",
+        "System recovers gracefully if task generation fails for any user"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a mission log history view in the frontend that displays all automated daily log entries with date, completed activities, and rewards earned",
+      "text": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "mission log daily at 12am"
+          "msg-6"
         ]
       },
       "acceptanceCriteria": [
-        "Mission log is accessible from the main navigation or dashboard",
-        "Log entries are displayed in reverse chronological order (newest first)",
-        "Each entry shows the date, completed tasks/missions count, and rewards (XP/coins)",
-        "UI follows existing design system with cyber/neon theme styling"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Enhance the AI task generation logic to consider user's historical completion patterns, time of day preferences, and previously completed tasks to provide more personalized daily recommendations",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-user-latest"
-        ],
-        "quotes": [
-          "perfect the ai to add tasks"
-        ]
-      },
-      "acceptanceCriteria": [
-        "AI uses taskCompletionLog data to analyze user patterns",
-        "Generated tasks vary based on user's completion success rates",
-        "Tasks avoid repetition of recently completed activities unless they are recurring by nature",
-        "Task difficulty scales appropriately with user level and stats"
+        "Users see new daily tasks appear automatically at midnight without requiring a page refresh",
+        "Loading states are shown while tasks are being fetched",
+        "Previous day's tasks are properly cleared or archived when new tasks arrive"
       ]
     }
   ],
   "constraints": [
-    "Use Motoko timers or heartbeat mechanism for scheduling midnight triggers",
-    "Do not modify existing authentication or profile management logic",
-    "Maintain compatibility with existing dailyTasks and taskCompletionLog data structures",
-    "Preserve all existing mission and task functionality"
+    "Use Motoko's Timer API for scheduling the daily task generation",
+    "Maintain single-actor architecture - all logic in backend/main.mo",
+    "Do not modify read-only frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui"
   ],
   "nonGoals": [
-    "User-configurable notification times (fixed at midnight)",
-    "Email or push notifications for daily updates",
-    "Real-time synchronization across multiple devices",
-    "External calendar integrations"
+    "Allowing users to customize the time when tasks are generated",
+    "Supporting multiple task generation schedules",
+    "Implementing timezone-specific task generation times"
   ],
   "imageRequirements": {
     "required": [],

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetCallerUserProfile, useListMissions, useCompleteMission, useListUserMissions, useCompleteUserMission, useDeleteUserMission } from '../hooks/useQueries';
+import { useGetCallerUserProfile, useGetMissions, useCompleteMission, useGetUserMissions, useCompleteUserMission, useDeleteUserMission } from '../hooks/useQueries';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,8 +13,8 @@ import { CustomMissionForm } from '../components/missions/CustomMissionForm';
 
 export function MissionsPage() {
   const { data: profile } = useGetCallerUserProfile();
-  const { data: missions = [] } = useListMissions();
-  const { data: userMissions = [], isLoading: userMissionsLoading } = useListUserMissions();
+  const { data: missions = [] } = useGetMissions();
+  const { data: userMissions = [], isLoading: userMissionsLoading } = useGetUserMissions();
   const completeMission = useCompleteMission();
   const completeUserMission = useCompleteUserMission();
   const deleteUserMission = useDeleteUserMission();
@@ -106,13 +106,13 @@ export function MissionsPage() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="flex items-center gap-2 text-white/95">
-                <Swords className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-white/95 break-words whitespace-pre-wrap">
+                <Swords className="h-5 w-5 text-primary flex-shrink-0" />
                 {mission.name}
               </CardTitle>
-              <CardDescription className="mt-2 text-white/75">{mission.description}</CardDescription>
+              <CardDescription className="mt-2 text-white/75 break-words whitespace-pre-wrap">{mission.description}</CardDescription>
             </div>
-            <Badge variant={mission.missionType === Variant_repeatable_daily.daily ? 'default' : 'secondary'}>
+            <Badge variant={mission.missionType === Variant_repeatable_daily.daily ? 'default' : 'secondary'} className="flex-shrink-0">
               {mission.missionType === Variant_repeatable_daily.daily ? (
                 <><Clock className="mr-1 h-3 w-3" /> {COPY.missions.daily}</>
               ) : (
@@ -123,15 +123,13 @@ export function MissionsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1 text-accent">
-                <TrendingUp className="h-4 w-4" />
-                <span>{Number(mission.xpReward)} XP</span>
-              </div>
-              <div className="flex items-center gap-1 text-primary">
-                <Coins className="h-4 w-4" />
-                <span>{Number(mission.coinReward)} Credits</span>
-              </div>
+            <div className="flex items-center gap-2 text-sm text-white/80">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span>{Number(mission.xpReward)} {COPY.missions.xp}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-white/80">
+              <Coins className="h-4 w-4 text-accent" />
+              <span>{Number(mission.coinReward)} {COPY.missions.coins}</span>
             </div>
           </div>
         </CardContent>
@@ -147,7 +145,7 @@ export function MissionsPage() {
               disabled={!canComplete || completeMission.isPending}
               className="w-full"
             >
-              {completeMission.isPending ? COPY.missions.completing : COPY.missions.completeMission}
+              {completeMission.isPending ? COPY.missions.completing : COPY.missions.complete}
             </Button>
           )}
         </CardFooter>
@@ -155,82 +153,114 @@ export function MissionsPage() {
     );
   };
 
-  const renderUserMissionCard = (mission: typeof userMissions[0], isCompleted: boolean) => {
+  const renderUserMissionCard = (mission: typeof userMissions[0]) => {
     const canComplete = canCompleteUserMission(mission.id);
+    const isCompleted = !canComplete;
 
     return (
-      <Card key={mission.id} className="transition-colors hover:border-accent" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+      <Card key={mission.id} className="transition-colors hover:border-primary" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
         <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <CardTitle className="flex items-center gap-2 text-white/95 break-words">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="flex items-center gap-2 text-white/95 break-words whitespace-pre-wrap">
                 <User className="h-5 w-5 text-accent flex-shrink-0" />
-                <span className="break-words">{mission.name || 'Untitled Mission'}</span>
+                {mission.name}
               </CardTitle>
-              <CardDescription className="mt-2 text-white/75 break-words whitespace-pre-wrap">
-                {mission.description || 'No description provided'}
-              </CardDescription>
+              <CardDescription className="mt-2 text-white/75 break-words whitespace-pre-wrap">{mission.description}</CardDescription>
             </div>
-            <Badge variant="outline" className="border-accent text-accent flex-shrink-0">
-              {COPY.customMissions.customBadge}
-            </Badge>
+            <Badge variant="secondary" className="flex-shrink-0">{COPY.customMissions.custom}</Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1 text-accent">
-                <TrendingUp className="h-4 w-4" />
-                <span>{Number(mission.xpReward)} {COPY.customMissions.xpLabel}</span>
-              </div>
-              <div className="flex items-center gap-1 text-primary">
-                <Coins className="h-4 w-4" />
-                <span>{Number(mission.coinReward)} {COPY.customMissions.goldLabel}</span>
-              </div>
+            <div className="flex items-center gap-2 text-sm text-white/80">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span>{Number(mission.xpReward)} {COPY.missions.xp}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-white/80">
+              <Coins className="h-4 w-4 text-accent" />
+              <span>{Number(mission.coinReward)} {COPY.missions.coins}</span>
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex gap-2">
           {isCompleted ? (
-            <Button disabled className="flex-1" variant="outline">
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              {COPY.customMissions.completed}
-            </Button>
+            <>
+              <Button disabled className="flex-1" variant="outline">
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                {COPY.missions.completed}
+              </Button>
+              <Button
+                onClick={() => handleDeleteClick(mission.id)}
+                disabled={deleteUserMission.isPending}
+                variant="destructive"
+                size="icon"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
           ) : (
-            <Button
-              onClick={() => completeUserMission.mutate(mission.id)}
-              disabled={!canComplete || completeUserMission.isPending}
-              className="flex-1"
-            >
-              {completeUserMission.isPending ? COPY.missions.completing : COPY.customMissions.completeButton}
-            </Button>
+            <>
+              <Button
+                onClick={() => completeUserMission.mutate(mission.id)}
+                disabled={completeUserMission.isPending}
+                className="flex-1"
+              >
+                {completeUserMission.isPending ? COPY.missions.completing : COPY.missions.complete}
+              </Button>
+              <Button
+                onClick={() => handleDeleteClick(mission.id)}
+                disabled={deleteUserMission.isPending}
+                variant="destructive"
+                size="icon"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
           )}
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => handleDeleteClick(mission.id)}
-            disabled={deleteUserMission.isPending}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
         </CardFooter>
       </Card>
     );
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
       <div>
-        <h2 className="text-3xl font-semibold text-white/95">{COPY.missions.title}</h2>
-        <p className="text-white/75">{COPY.missions.description}</p>
+        <h1 className="text-3xl font-bold text-white/95">{COPY.missions.title}</h1>
+        <p className="mt-2 text-white/70">{COPY.missions.subtitle}</p>
       </div>
 
-      {/* Custom Mission Creation Form */}
-      <div className="space-y-4">
-        <Collapsible open={showCreateForm} onOpenChange={setShowCreateForm}>
+      {/* Daily Missions */}
+      <section>
+        <h2 className="mb-4 text-2xl font-semibold text-primary">{COPY.missions.dailyMissions}</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {dailyMissions.map(renderMissionCard)}
+        </div>
+      </section>
+
+      <Separator className="bg-border/50" />
+
+      {/* Repeatable Missions */}
+      <section>
+        <h2 className="mb-4 text-2xl font-semibold text-primary">{COPY.missions.repeatableMissions}</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {repeatableMissions.map(renderMissionCard)}
+        </div>
+      </section>
+
+      <Separator className="bg-border/50" />
+
+      {/* Custom Missions */}
+      <section>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-accent">{COPY.customMissions.title}</h2>
+        </div>
+
+        {/* Create Mission Form - Collapsible */}
+        <Collapsible open={showCreateForm} onOpenChange={setShowCreateForm} className="mb-6">
           <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between border-accent/50 hover:border-accent">
-              <span className="text-accent">{COPY.customMissions.createNewSection}</span>
+            <Button variant="outline" className="w-full justify-between">
+              <span>{showCreateForm ? COPY.customMissions.hideForm : COPY.customMissions.showForm}</span>
               {showCreateForm ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </CollapsibleTrigger>
@@ -238,90 +268,50 @@ export function MissionsPage() {
             <CustomMissionForm />
           </CollapsibleContent>
         </Collapsible>
-      </div>
 
-      {/* Custom Missions */}
-      {!userMissionsLoading && incompleteCustomMissions.length > 0 && (
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-xl font-semibold text-accent">{COPY.customMissions.sectionTitle}</h3>
-            <p className="text-sm text-white/75">{COPY.customMissions.sectionDescription}</p>
+        {/* Active Custom Missions */}
+        {incompleteCustomMissions.length > 0 && (
+          <div className="mb-6">
+            <h3 className="mb-3 text-lg font-medium text-white/90">{COPY.customMissions.activeMissions}</h3>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {incompleteCustomMissions.map(renderUserMissionCard)}
+            </div>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {incompleteCustomMissions.map((mission) => renderUserMissionCard(mission, false))}
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Completed Custom Missions */}
-      {!userMissionsLoading && completedCustomMissions.length > 0 && (
-        <div className="space-y-4">
+        {/* Completed Custom Missions - Collapsible */}
+        {completedCustomMissions.length > 0 && (
           <Collapsible open={showCompletedCustom} onOpenChange={setShowCompletedCustom}>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
-                <span>{COPY.customMissions.completedSection} ({completedCustomMissions.length})</span>
+              <Button variant="ghost" className="w-full justify-between text-white/70 hover:text-white/90">
+                <span>{COPY.customMissions.completedMissions} ({completedCustomMissions.length})</span>
                 {showCompletedCustom ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                {completedCustomMissions.map((mission) => renderUserMissionCard(mission, true))}
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {completedCustomMissions.map(renderUserMissionCard)}
               </div>
             </CollapsibleContent>
           </Collapsible>
-        </div>
-      )}
+        )}
 
-      {/* Empty state for custom missions */}
-      {!userMissionsLoading && incompleteCustomMissions.length === 0 && completedCustomMissions.length === 0 && (
-        <Card style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
-          <CardContent className="py-12 text-center">
-            <p className="text-white/75">{COPY.customMissions.emptyState}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Daily Missions */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold text-white/95">{COPY.missions.dailyMissions}</h3>
-          <p className="text-sm text-white/75">{COPY.missions.dailyDescription}</p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {dailyMissions.map(renderMissionCard)}
-        </div>
-      </div>
-
-      {/* Repeatable Missions */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-xl font-semibold text-white/95">{COPY.missions.repeatableMissions}</h3>
-          <p className="text-sm text-white/75">{COPY.missions.repeatableDescription}</p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {repeatableMissions.map(renderMissionCard)}
-        </div>
-      </div>
-
-      {missions.length === 0 && (
-        <Card style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
-          <CardContent className="py-12 text-center">
-            <p className="text-white/75">{COPY.missions.noMissions}</p>
-          </CardContent>
-        </Card>
-      )}
+        {userMissions.length === 0 && !userMissionsLoading && (
+          <p className="text-center text-white/60">{COPY.customMissions.noMissions}</p>
+        )}
+      </section>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{COPY.customMissions.deleteDialogTitle}</AlertDialogTitle>
-            <AlertDialogDescription>{COPY.customMissions.deleteDialogMessage}</AlertDialogDescription>
+            <AlertDialogTitle>{COPY.customMissions.deleteConfirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>{COPY.customMissions.deleteConfirmMessage}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{COPY.customMissions.cancelButton}</AlertDialogCancel>
+            <AlertDialogCancel>{COPY.customMissions.cancel}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90">
-              {COPY.customMissions.deleteButton}
+              {COPY.customMissions.delete}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

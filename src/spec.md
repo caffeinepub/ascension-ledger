@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Implement automated daily AI task generation and mission log updates that trigger at midnight.
+**Goal:** Implement automated daily task generation that triggers at midnight UTC for all users.
 
 **Planned changes:**
-- Add a daily timer mechanism that triggers at midnight to automatically generate new AI-recommended tasks
-- Create automated mission log entries at midnight recording daily activity summaries (completed tasks, missions, XP, coins)
-- Add a mission log history view in the frontend displaying all daily log entries
-- Enhance AI task generation to consider user's historical completion patterns and preferences for personalized recommendations
+- Add a backend timer system using Motoko's Timer API that triggers at 00:00:00 UTC daily
+- Automatically generate AI tasks for all active users at midnight without manual intervention
+- Persist generated tasks immediately to stable storage with graceful error handling
+- Update the DailyTasksSection component to automatically refresh and display new tasks at midnight
+- Clear or archive previous day's tasks when new tasks arrive
 
-**User-visible outcome:** Users will receive fresh AI-generated daily tasks automatically at midnight and can view a mission log history showing their daily progress, completed activities, and rewards earned over time.
+**User-visible outcome:** Users will automatically receive new AI-generated daily tasks at midnight UTC, which appear in their dashboard without requiring a page refresh.

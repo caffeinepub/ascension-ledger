@@ -6,21 +6,52 @@ import { toast } from 'sonner';
 // Profile hooks
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      if (!actor) {
+        console.error('[useGetCallerUserProfile] Actor not available');
+        throw new Error('Actor not available');
+      }
+      
+      const startTime = Date.now();
+      console.log('[useGetCallerUserProfile] Fetching user profile...', {
+        timestamp: new Date().toISOString()
+      });
+      
+      try {
+        const profile = await actor.getCallerUserProfile();
+        const elapsed = Date.now() - startTime;
+        console.log('[useGetCallerUserProfile] Profile fetched successfully', {
+          elapsed,
+          hasProfile: profile !== null
+        });
+        return profile;
+      } catch (error) {
+        const elapsed = Date.now() - startTime;
+        console.error('[useGetCallerUserProfile] Profile fetch failed', {
+          elapsed,
+          error: error instanceof Error ? error.message : String(error)
+        });
+        throw error;
+      }
     },
-    enabled: !!actor && !actorFetching,
-    retry: false,
+    enabled: !!actor && actorReady && !actorFetching,
+    retry: 3,
+    retryDelay: (attemptIndex) => {
+      const delay = Math.min(1000 * Math.pow(2, attemptIndex), 5000);
+      console.log(`[useGetCallerUserProfile] Retry attempt ${attemptIndex + 1} in ${delay}ms`);
+      return delay;
+    },
+    staleTime: 30000,
   });
 
   return {
     ...query,
     isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
+    isFetched: actorReady && query.isFetched,
   };
 }
 
@@ -31,13 +62,16 @@ export function useInitializeProfile() {
   return useMutation({
     mutationFn: async (nickname: string) => {
       if (!actor) throw new Error('Actor not available');
+      console.log('[useInitializeProfile] Initializing profile with nickname:', nickname);
       return actor.initializeProfile(nickname);
     },
     onSuccess: (profile) => {
+      console.log('[useInitializeProfile] Profile initialized successfully');
       queryClient.setQueryData(['currentUserProfile'], profile);
       toast.success('Profile created successfully!');
     },
     onError: (error: Error) => {
+      console.error('[useInitializeProfile] Failed to initialize profile:', error);
       toast.error(error.message || 'Failed to create profile');
     },
   });
@@ -84,21 +118,52 @@ export function useDeleteAccount() {
 // Questionnaire hooks
 export function useGetQuestionnaireAnswers() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   const query = useQuery<QuestionnaireAnswers | null>({
     queryKey: ['questionnaireAnswers'],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getQuestionnaireAnswers();
+      if (!actor) {
+        console.error('[useGetQuestionnaireAnswers] Actor not available');
+        throw new Error('Actor not available');
+      }
+      
+      const startTime = Date.now();
+      console.log('[useGetQuestionnaireAnswers] Fetching questionnaire answers...', {
+        timestamp: new Date().toISOString()
+      });
+      
+      try {
+        const answers = await actor.getQuestionnaireAnswers();
+        const elapsed = Date.now() - startTime;
+        console.log('[useGetQuestionnaireAnswers] Answers fetched successfully', {
+          elapsed,
+          hasAnswers: answers !== null && answers.length > 0
+        });
+        return answers;
+      } catch (error) {
+        const elapsed = Date.now() - startTime;
+        console.error('[useGetQuestionnaireAnswers] Fetch failed', {
+          elapsed,
+          error: error instanceof Error ? error.message : String(error)
+        });
+        throw error;
+      }
     },
-    enabled: !!actor && !actorFetching,
-    retry: false,
+    enabled: !!actor && actorReady && !actorFetching,
+    retry: 3,
+    retryDelay: (attemptIndex) => {
+      const delay = Math.min(1000 * Math.pow(2, attemptIndex), 5000);
+      console.log(`[useGetQuestionnaireAnswers] Retry attempt ${attemptIndex + 1} in ${delay}ms`);
+      return delay;
+    },
+    staleTime: 30000,
   });
 
   return {
     ...query,
     isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
+    isFetched: actorReady && query.isFetched,
   };
 }
 
@@ -109,14 +174,17 @@ export function useSubmitQuestionnaireAnswers() {
   return useMutation({
     mutationFn: async (answers: string[]) => {
       if (!actor) throw new Error('Actor not available');
+      console.log('[useSubmitQuestionnaireAnswers] Submitting answers');
       return actor.submitQuestionnaireAnswers(answers);
     },
     onSuccess: () => {
+      console.log('[useSubmitQuestionnaireAnswers] Answers submitted successfully');
       queryClient.invalidateQueries({ queryKey: ['questionnaireAnswers'] });
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
       toast.success('Personalization complete! Welcome to CRYONEX.');
     },
     onError: (error: Error) => {
+      console.error('[useSubmitQuestionnaireAnswers] Failed to submit:', error);
       toast.error(error.message || 'Failed to save preferences');
     },
   });
@@ -125,14 +193,24 @@ export function useSubmitQuestionnaireAnswers() {
 // Daily Tasks hooks
 export function useGetDailyTaskRecommendations() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   return useQuery<DailyTaskRecommendation>({
     queryKey: ['dailyTaskRecommendations'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return actor.getDailyTaskRecommendations();
+      console.log('[useGetDailyTaskRecommendations] Fetching daily task recommendations');
+      const recommendations = await actor.getDailyTaskRecommendations();
+      console.log('[useGetDailyTaskRecommendations] Fetched', {
+        incomplete: recommendations.incomplete.length,
+        completed: recommendations.completed.length,
+      });
+      return recommendations;
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && actorReady && !actorFetching,
+    staleTime: 60000, // Consider data fresh for 1 minute
+    refetchOnMount: true, // Always refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 }
 
@@ -148,7 +226,7 @@ export function useMarkDailyTaskCompleted() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyTaskRecommendations'] });
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      toast.success('Task completed! Great work!');
+      toast.success('Task completed! XP and coins earned.');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to complete task');
@@ -159,14 +237,15 @@ export function useMarkDailyTaskCompleted() {
 // Custom Tasks hooks
 export function useGetCustomTasks() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   return useQuery<CustomTaskWithStatus[]>({
     queryKey: ['customTasks'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.getCustomTasks();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && actorReady && !actorFetching,
   });
 }
 
@@ -175,9 +254,9 @@ export function useCreateCustomTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ title, points, attributePoints }: { title: string; points: number; attributePoints: number }) => {
+    mutationFn: async ({ title, points, attributePoints }: { title: string; points: bigint; attributePoints: bigint }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createCustomTask(title, BigInt(points), BigInt(attributePoints));
+      return actor.createCustomTask(title, points, attributePoints);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customTasks'] });
@@ -198,14 +277,10 @@ export function useToggleCustomTaskCompletion() {
       if (!actor) throw new Error('Actor not available');
       return actor.toggleCustomTaskCompletion(taskId, completed);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customTasks'] });
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      if (variables.completed) {
-        toast.success('Task completed! XP, credits, and attribute points earned!');
-      } else {
-        toast.success('Task marked as incomplete');
-      }
+      toast.success('Task status updated!');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update task status');
@@ -213,31 +288,37 @@ export function useToggleCustomTaskCompletion() {
   });
 }
 
-// Stats hooks
-export function useGetStatNames() {
-  const { actor, isFetching: actorFetching } = useActor();
+export function useDeleteCustomTask() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
 
-  return useQuery<string[]>({
-    queryKey: ['statNames'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getStatNames();
+  return useMutation({
+    mutationFn: async (taskId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteCustomTask(taskId);
     },
-    enabled: !!actor && !actorFetching,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customTasks'] });
+      toast.success('Custom task deleted successfully!');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to delete custom task');
+    },
   });
 }
 
+// Stats hooks
 export function useAllocateStats() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (statAllocations: Array<[bigint, bigint]>) => {
+    mutationFn: async (statAllocations: [bigint, bigint][]) => {
       if (!actor) throw new Error('Actor not available');
       return actor.allocateStats(statAllocations);
     },
-    onSuccess: (profile) => {
-      queryClient.setQueryData(['currentUserProfile'], profile);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
       toast.success('Stats allocated successfully!');
     },
     onError: (error: Error) => {
@@ -246,17 +327,18 @@ export function useAllocateStats() {
   });
 }
 
-// Mission hooks
-export function useListMissions() {
+// Missions hooks
+export function useGetMissions() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   return useQuery<Mission[]>({
     queryKey: ['missions'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.listMissions();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && actorReady && !actorFetching,
   });
 }
 
@@ -269,9 +351,10 @@ export function useCompleteMission() {
       if (!actor) throw new Error('Actor not available');
       return actor.completeMission(missionId);
     },
-    onSuccess: (profile) => {
-      queryClient.setQueryData(['currentUserProfile'], profile);
-      toast.success('Mission completed!');
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['missions'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      toast.success('Mission completed! Rewards earned.');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to complete mission');
@@ -279,28 +362,18 @@ export function useCompleteMission() {
   });
 }
 
-// User Mission hooks
-export function useListUserMissions() {
+// User Missions hooks
+export function useGetUserMissions() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   return useQuery<UserMission[]>({
     queryKey: ['userMissions'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.listUserMissions();
     },
-    enabled: !!actor && !actorFetching,
-  });
-}
-
-export function useGetUserMission() {
-  const { actor } = useActor();
-
-  return useMutation({
-    mutationFn: async (missionId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getUserMission(missionId);
-    },
+    enabled: !!actor && actorReady && !actorFetching,
   });
 }
 
@@ -309,24 +382,9 @@ export function useCreateUserMission() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      title, 
-      description, 
-      xpReward, 
-      coinReward 
-    }: { 
-      title: string; 
-      description: string; 
-      xpReward: number; 
-      coinReward: number; 
-    }) => {
+    mutationFn: async ({ title, description, xpReward, coinReward }: { title: string; description: string; xpReward: bigint; coinReward: bigint }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.createUserMission(
-        title, 
-        description, 
-        BigInt(xpReward), 
-        BigInt(coinReward)
-      );
+      return actor.createUserMission(title, description, xpReward, coinReward);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userMissions'] });
@@ -347,13 +405,13 @@ export function useCompleteUserMission() {
       if (!actor) throw new Error('Actor not available');
       return actor.completeUserMission(missionId);
     },
-    onSuccess: (profile) => {
-      queryClient.setQueryData(['currentUserProfile'], profile);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userMissions'] });
-      toast.success('Custom mission completed!');
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      toast.success('Mission completed! Rewards earned.');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to complete custom mission');
+      toast.error(error.message || 'Failed to complete mission');
     },
   });
 }
@@ -378,16 +436,17 @@ export function useDeleteUserMission() {
 }
 
 // Skills hooks
-export function useListSkills() {
+export function useGetSkills() {
   const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
 
   return useQuery<Skill[]>({
     queryKey: ['skills'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       return actor.listSkills();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && actorReady && !actorFetching,
   });
 }
 
@@ -400,9 +459,10 @@ export function useUnlockSkill() {
       if (!actor) throw new Error('Actor not available');
       return actor.unlockSkill(skillId);
     },
-    onSuccess: (profile) => {
-      queryClient.setQueryData(['currentUserProfile'], profile);
-      toast.success('Skill unlocked!');
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['skills'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      toast.success('Skill unlocked successfully!');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to unlock skill');

@@ -3,28 +3,42 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut } from 'lucide-react';
 import { COPY } from '../../content/copy';
+import { useState, useEffect } from 'react';
 
 export function LoginButton() {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
   const queryClient = useQueryClient();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const isAuthenticated = !!identity;
-  const disabled = loginStatus === 'logging-in';
+  const disabled = loginStatus === 'logging-in' || isProcessing;
+
+  // Reset processing state when login status changes
+  useEffect(() => {
+    if (loginStatus === 'idle' || loginStatus === 'success') {
+      setIsProcessing(false);
+    }
+  }, [loginStatus]);
 
   const handleAuth = async () => {
-    if (isAuthenticated) {
-      await clear();
-      queryClient.clear();
-    } else {
-      try {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
+
+    try {
+      if (isAuthenticated) {
+        await clear();
+        queryClient.clear();
+      } else {
         await login();
-      } catch (error: any) {
-        console.error('Login error:', error);
-        if (error.message === 'User is already authenticated') {
-          await clear();
-          setTimeout(() => login(), 300);
-        }
       }
+    } catch (error: any) {
+      console.error('Login error:', error);
+    } finally {
+      // Reset processing state after a delay
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 1000);
     }
   };
 
@@ -35,7 +49,7 @@ export function LoginButton() {
       variant={isAuthenticated ? 'outline' : 'default'}
       className="gap-2"
     >
-      {loginStatus === 'logging-in' ? (
+      {loginStatus === 'logging-in' || isProcessing ? (
         <>
           <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
           {COPY.auth.connecting}

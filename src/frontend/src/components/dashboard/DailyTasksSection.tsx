@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useGetDailyTaskRecommendations, useMarkDailyTaskCompleted } from '../../hooks/useQueries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +9,43 @@ import { CheckCircle2, Circle, Coins, Zap, Sparkles } from 'lucide-react';
 export function DailyTasksSection() {
   const { data: taskRecommendations, isLoading } = useGetDailyTaskRecommendations();
   const markCompleted = useMarkDailyTaskCompleted();
+  const queryClient = useQueryClient();
+
+  // Calculate time until next midnight UTC and set up auto-refresh
+  useEffect(() => {
+    const scheduleNextRefresh = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now);
+      nextMidnight.setUTCHours(24, 0, 0, 0);
+      
+      const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+      
+      console.log('[DailyTasksSection] Scheduling next refresh at midnight UTC', {
+        currentTime: now.toISOString(),
+        nextMidnight: nextMidnight.toISOString(),
+        timeUntilMidnight: `${Math.floor(timeUntilMidnight / 1000 / 60 / 60)}h ${Math.floor((timeUntilMidnight / 1000 / 60) % 60)}m`,
+      });
+
+      // Schedule refresh at midnight
+      const timeoutId = setTimeout(() => {
+        console.log('[DailyTasksSection] Midnight reached - refreshing daily tasks');
+        queryClient.invalidateQueries({ queryKey: ['dailyTaskRecommendations'] });
+        queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+        
+        // Schedule the next refresh for tomorrow
+        scheduleNextRefresh();
+      }, timeUntilMidnight);
+
+      return timeoutId;
+    };
+
+    const timeoutId = scheduleNextRefresh();
+
+    // Cleanup on unmount
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [queryClient]);
 
   if (isLoading) {
     return (
@@ -114,7 +153,7 @@ export function DailyTasksSection() {
           <div className="py-8 text-center">
             <Sparkles className="mx-auto mb-3 h-12 w-12 text-white/30" />
             <p className="text-sm text-white/75">No daily tasks available yet.</p>
-            <p className="mt-1 text-xs text-white/50">Check back soon for AI-generated recommendations!</p>
+            <p className="mt-1 text-xs text-white/50">New AI-generated tasks will appear at midnight UTC!</p>
           </div>
         )}
       </CardContent>

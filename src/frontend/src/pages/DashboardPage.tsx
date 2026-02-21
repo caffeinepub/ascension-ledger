@@ -7,6 +7,23 @@ import { COPY } from '../content/copy';
 import { RealTimeClock } from '../components/dashboard/RealTimeClock';
 import { DateCalendar } from '../components/dashboard/DateCalendar';
 import { DailyTasksSection } from '../components/dashboard/DailyTasksSection';
+import { StatsRadarChart } from '../components/stats/StatsRadarChart';
+
+const STAT_NAMES = [
+  'Academics',
+  'Creativity',
+  'Fitness',
+  'Health',
+  'Life Skills',
+  'Mental Health',
+  'Productivity',
+  'Relationship Building',
+  'Self Awareness',
+  'Self Care',
+  'Social Awareness',
+  'Wealth',
+  'Work',
+];
 
 export function DashboardPage() {
   const { data: profile } = useGetCallerUserProfile();
@@ -111,6 +128,16 @@ export function DashboardPage() {
             </span>
           </div>
           <Progress value={xpProgress} className="h-3" />
+        </CardContent>
+      </Card>
+
+      {/* Stats Radar Chart */}
+      <Card className="border-primary/20" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
+        <CardHeader>
+          <CardTitle className="text-white/95">Attribute Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <StatsRadarChart stats={profile.stats} statNames={STAT_NAMES} />
         </CardContent>
       </Card>
 

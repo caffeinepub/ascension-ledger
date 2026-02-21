@@ -1,47 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend for Mission Log History View",
+  "title": "Implement automated daily task generation at midnight",
   "requirements": [
     {
       "id": "REQ-3",
-      "summary": "Add a mission log history view displaying automated daily log entries with date, completed activities, and rewards",
+      "summary": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
       "acceptanceCriteria": [
-        "Mission log is accessible from the main navigation or dashboard",
-        "Log entries are displayed in reverse chronological order (newest first)",
-        "Each entry shows the date, completed tasks/missions count, and rewards (XP/coins)",
-        "UI follows existing design system with cyber/neon theme styling"
+        "Users see new daily tasks appear automatically at midnight without requiring a page refresh",
+        "Loading states are shown while tasks are being fetched",
+        "Previous day's tasks are properly cleared or archived when new tasks arrive"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/backend.d.ts",
+          "path": "frontend/src/components/dashboard/DailyTasksSection.tsx",
           "operation": "modify",
-          "description": "Add TypeScript interface definitions for MissionLogEntry type returned by the backend, including fields for date (Time), completedTasksCount (bigint), completedMissionsCount (bigint), xpEarned (bigint), and coinsEarned (bigint). Also add backend method signature: listMissionLogEntries(): Promise<Array<MissionLogEntry>>."
+          "description": "Add real-time refresh logic to automatically fetch new daily tasks at midnight UTC. Implement a timer that calculates time until next midnight and triggers a query invalidation to refetch tasks. Ensure loading states are properly displayed during fetch operations and handle the transition from old tasks to new tasks smoothly."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a new React Query hook useListMissionLogEntries() that fetches mission log entries from the backend using the listMissionLogEntries method. Include proper query key, error handling with toast notifications, and enabled state tied to actor availability. Follow the existing pattern used for other list queries in this file."
-        },
-        {
-          "path": "frontend/src/pages/MissionLogPage.tsx",
-          "operation": "create",
-          "description": "Create a new page component that displays mission log history in a card-based layout. Use useListMissionLogEntries hook to fetch data. Display entries in reverse chronological order with date formatting, completed tasks/missions counts, and XP/coins earned. Include loading and error states. Style using existing Tailwind classes with cyber/neon theme (bg-card/25, border-primary/20, text-accent, etc.). Use the AppLayout wrapper for consistent navigation."
-        },
-        {
-          "path": "frontend/src/components/layout/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Add a new navigation item for 'Mission Log' in the sidebar navigation array. Include an appropriate icon (e.g., ScrollText from lucide-react) and set the path to '/mission-log'. Position it after 'Missions' and before 'Custom Tasks' for logical grouping of mission-related features."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a new route for the MissionLogPage component at path '/mission-log'. Import MissionLogPage and add it to the router configuration between the missions route and custom-tasks route. Ensure it is wrapped in the authenticated section after profile setup and questionnaire completion."
-        },
-        {
-          "path": "frontend/src/content/copy.ts",
-          "operation": "modify",
-          "description": "Add a new 'missionLog' section to the copy object containing UI text for the mission log page, including page title ('Mission Log History'), empty state message ('No mission log entries yet. Complete tasks and missions to see your daily progress here.'), and column headers ('Date', 'Tasks Completed', 'Missions Completed', 'XP Earned', 'Coins Earned')."
+          "description": "Enhance the daily tasks query hook to support automatic invalidation at midnight. Add query key management to ensure proper cache invalidation when new daily tasks are generated. Ensure the query properly handles loading and error states during automatic refresh operations."
         }
       ]
     }
