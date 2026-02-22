@@ -273,6 +273,69 @@ actor {
       missionType = #repeatable;
     });
 
+    missions.add("task_management", {
+      id = "task_management";
+      name = "Task Management";
+      description = "Organize and prioritize your daily tasks for increased productivity";
+      xpReward = 80;
+      coinReward = 40;
+      missionType = #repeatable;
+    });
+
+    missions.add("health_checkup", {
+      id = "health_checkup";
+      name = "Health Checkup";
+      description = "Schedule a regular health checkup to monitor your physical well-being";
+      xpReward = 150;
+      coinReward = 75;
+      missionType = #repeatable;
+    });
+
+    missions.add("fitness_challenge", {
+      id = "fitness_challenge";
+      name = "Fitness Challenge";
+      description = "Participate in a fitness challenge to improve your strength and stamina";
+      xpReward = 200;
+      coinReward = 100;
+      missionType = #repeatable;
+    });
+
+    missions.add("social_community_engagement", {
+      id = "social_community_engagement";
+      name = "Social Community Engagement";
+      description = "Engage in community activities to foster social awareness and connection";
+      xpReward = 120;
+      coinReward = 60;
+      missionType = #repeatable;
+    });
+
+    missions.add("balanced_diet", {
+      id = "balanced_diet";
+      name = "Balanced Diet";
+      description = "Maintain a balanced diet to support your overall health and energy levels";
+      xpReward = 90;
+      coinReward = 45;
+      missionType = #repeatable;
+    });
+
+    missions.add("daily_meditation", {
+      id = "daily_meditation";
+      name = "Daily Meditation";
+      description = "Practice daily meditation for improved mental health and clarity";
+      xpReward = 60;
+      coinReward = 30;
+      missionType = #repeatable;
+    });
+
+    missions.add("financial_planning", {
+      id = "financial_planning";
+      name = "Financial Planning";
+      description = "Plan your finances to increase wealth and stability";
+      xpReward = 180;
+      coinReward = 90;
+      missionType = #repeatable;
+    });
+
     skills.add("strength_training", {
       id = "strength_training";
       name = "Strength Training";

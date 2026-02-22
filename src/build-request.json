@@ -1,70 +1,123 @@
 {
   "kind": "build_request",
-  "title": "Implement automated daily task generation at midnight",
-  "projectName": "CRYONEX",
+  "title": "Configure PWA with Cryonex branding and uploaded logo",
+  "projectName": "Cryonex",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Implement a backend timer system that triggers at 00:00:00 UTC daily to automatically generate AI tasks for all users",
-      "target": "backend",
+      "text": "Update PWA manifest (frontend/public/manifest.json) to use 'Cryonex' as the app name and short_name",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ],
         "quotes": [
-          "make the ai give tasks every day at 00:00:00"
+          "name the app Cryonex"
         ]
       },
       "acceptanceCriteria": [
-        "Timer triggers precisely at 00:00:00 UTC each day",
-        "AI task generation is invoked automatically without manual intervention",
-        "All active users receive new daily tasks at midnight"
+        "manifest.json name field is set to 'Cryonex'",
+        "manifest.json short_name field is set to 'Cryonex'"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the daily task generation system handles timezone-independent execution and persists tasks immediately upon generation",
-      "target": "backend",
+      "text": "Generate PWA icon images from the uploaded Cryonex logo (IMG_20260218_211452.png-1.jpg) in standard PWA sizes: 192x192px and 512x512px",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
+        ],
+        "quotes": [
+          "Use the uploaded file image as logo"
         ]
       },
       "acceptanceCriteria": [
-        "Task generation occurs at a consistent UTC time regardless of user timezones",
-        "Generated tasks are immediately persisted to stable storage",
-        "System recovers gracefully if task generation fails for any user"
+        "192x192 icon generated and saved to frontend/public/assets/generated/",
+        "512x512 icon generated and saved to frontend/public/assets/generated/",
+        "Icons maintain the Cryonex logo design with transparent or appropriate background"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
+      "text": "Update PWA manifest icons array to reference the newly generated Cryonex logo icons at 192x192 and 512x512 sizes",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "Users see new daily tasks appear automatically at midnight without requiring a page refresh",
-        "Loading states are shown while tasks are being fetched",
-        "Previous day's tasks are properly cleared or archived when new tasks arrive"
+        "manifest.json icons array includes both generated icon paths",
+        "Icon src paths point to frontend/public/assets/generated/ directory",
+        "Both icons specify correct sizes and type (image/png)",
+        "Both icons specify purpose as 'any maskable'"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the PWA manifest theme_color and background_color to match the app's existing cyan/neon cyberpunk theme using the colors from index.css",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "you know what to do with theme"
+        ]
+      },
+      "acceptanceCriteria": [
+        "theme_color uses the cyan accent color from the existing theme",
+        "background_color uses the dark background color from the existing theme",
+        "Colors are consistent with the app's cyberpunk aesthetic"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Update index.html to reference the Cryonex app name in the title tag",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "HTML title tag displays 'Cryonex' or 'Cryonex - [appropriate subtitle]'",
+        "Title is visible in browser tab"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add Apple touch icon link in index.html pointing to the 512x512 generated Cryonex logo for iOS PWA support",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Apple touch icon link tag added to index.html head",
+        "Link references the 512x512 generated icon path"
       ]
     }
   ],
   "constraints": [
-    "Use Motoko's Timer API for scheduling the daily task generation",
-    "Maintain single-actor architecture - all logic in backend/main.mo",
-    "Do not modify read-only frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui"
+    "Do not modify existing service worker cache strategy logic",
+    "Do not change the app's existing cyberpunk/neon theme colors except for PWA manifest updates",
+    "Keep all existing PWA infrastructure (service worker, manifest structure) intact"
   ],
   "nonGoals": [
-    "Allowing users to customize the time when tasks are generated",
-    "Supporting multiple task generation schedules",
-    "Implementing timezone-specific task generation times"
+    "Converting to native Android APK",
+    "Adding new PWA features beyond logo and branding updates",
+    "Modifying service worker caching behavior",
+    "Changing the app's visual design or layout"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Cryonex logo icon optimized for PWA with transparent background, showing the 'CX' letters with cyan glow and red lightning bolt (cryonex-icon-192.dim_192x192.png)",
+      "Cryonex logo icon optimized for PWA with transparent background, showing the 'CX' letters with cyan glow and red lightning bolt (cryonex-icon-512.dim_512x512.png)"
+    ],
     "edits": []
   }
 }

@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Implement automated daily task generation that triggers at midnight UTC for all users.
+**Goal:** Configure the PWA with Cryonex branding, custom logo icons, and cyberpunk theme colors.
 
 **Planned changes:**
-- Add a backend timer system using Motoko's Timer API that triggers at 00:00:00 UTC daily
-- Automatically generate AI tasks for all active users at midnight without manual intervention
-- Persist generated tasks immediately to stable storage with graceful error handling
-- Update the DailyTasksSection component to automatically refresh and display new tasks at midnight
-- Clear or archive previous day's tasks when new tasks arrive
+- Update PWA manifest with 'Cryonex' as app name and short_name
+- Generate 192x192 and 512x512 PWA icons from uploaded Cryonex logo
+- Update manifest icons array to reference generated Cryonex logo icons
+- Set PWA theme_color and background_color to match existing cyan/neon cyberpunk theme
+- Update index.html title tag to display 'Cryonex'
+- Add Apple touch icon link in index.html for iOS PWA support
 
-**User-visible outcome:** Users will automatically receive new AI-generated daily tasks at midnight UTC, which appear in their dashboard without requiring a page refresh.
+**User-visible outcome:** The PWA displays as "Cryonex" with custom logo icons matching the cyberpunk aesthetic when installed on devices or added to home screens.

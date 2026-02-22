@@ -1,26 +1,104 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Implement automated daily task generation at midnight",
+  "title": "Configure PWA with Cryonex branding and uploaded logo",
   "requirements": [
     {
-      "id": "REQ-3",
-      "summary": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
+      "id": "REQ-1",
+      "summary": "Update PWA manifest to use 'Cryonex' as the app name and short_name",
       "acceptanceCriteria": [
-        "Users see new daily tasks appear automatically at midnight without requiring a page refresh",
-        "Loading states are shown while tasks are being fetched",
-        "Previous day's tasks are properly cleared or archived when new tasks arrive"
+        "manifest.json name field is set to 'Cryonex'",
+        "manifest.json short_name field is set to 'Cryonex'"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/dashboard/DailyTasksSection.tsx",
+          "path": "frontend/public/manifest.json",
           "operation": "modify",
-          "description": "Add real-time refresh logic to automatically fetch new daily tasks at midnight UTC. Implement a timer that calculates time until next midnight and triggers a query invalidation to refetch tasks. Ensure loading states are properly displayed during fetch operations and handle the transition from old tasks to new tasks smoothly."
+          "description": "Update the 'name' field to 'Cryonex' and 'short_name' field to 'Cryonex' in the PWA manifest. Keep all other existing fields (display, theme_color, background_color, categories, icons array structure) unchanged."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Generate PWA icon images from the uploaded Cryonex logo in standard PWA sizes: 192x192px and 512x512px",
+      "acceptanceCriteria": [
+        "192x192 icon generated and saved to frontend/public/assets/generated/",
+        "512x512 icon generated and saved to frontend/public/assets/generated/",
+        "Icons maintain the Cryonex logo design with transparent or appropriate background"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/cryonex-icon-192.dim_192x192.png",
+          "operation": "create",
+          "description": "Image generation handled by image system. This operation documents that the 192x192 icon will be available at frontend/public/assets/generated/cryonex-icon-192.dim_192x192.png showing the 'CX' letters with cyan glow and red lightning bolt on transparent background."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/public/assets/generated/cryonex-icon-512.dim_512x512.png",
+          "operation": "create",
+          "description": "Image generation handled by image system. This operation documents that the 512x512 icon will be available at frontend/public/assets/generated/cryonex-icon-512.dim_512x512.png showing the 'CX' letters with cyan glow and red lightning bolt on transparent background."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Update PWA manifest icons array to reference the newly generated Cryonex logo icons at 192x192 and 512x512 sizes",
+      "acceptanceCriteria": [
+        "manifest.json icons array includes both generated icon paths",
+        "Icon src paths point to frontend/public/assets/generated/ directory",
+        "Both icons specify correct sizes and type (image/png)",
+        "Both icons specify purpose as 'any maskable'"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.json",
           "operation": "modify",
-          "description": "Enhance the daily tasks query hook to support automatic invalidation at midnight. Add query key management to ensure proper cache invalidation when new daily tasks are generated. Ensure the query properly handles loading and error states during automatic refresh operations."
+          "description": "Update the 'icons' array to reference the generated Cryonex logo icons. Set the 192x192 icon src to '/assets/generated/cryonex-icon-192.dim_192x192.png' with sizes '192x192', type 'image/png', and purpose 'any maskable'. Set the 512x512 icon src to '/assets/generated/cryonex-icon-512.dim_512x512.png' with sizes '512x512', type 'image/png', and purpose 'any maskable'. Replace any existing icon entries in the array."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update the PWA manifest theme_color and background_color to match the app's existing cyan/neon cyberpunk theme using the colors from index.css",
+      "acceptanceCriteria": [
+        "theme_color uses the cyan accent color from the existing theme",
+        "background_color uses the dark background color from the existing theme",
+        "Colors are consistent with the app's cyberpunk aesthetic"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Update 'theme_color' to use the cyan accent color from the app's cyberpunk theme (extract from frontend/src/index.css CSS variables, likely the primary cyan color used for glows and accents). Update 'background_color' to use the dark background color from the theme (extract from frontend/src/index.css, likely the dark metallic background). Use hex color format for browser compatibility."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Update index.html to reference the Cryonex app name in the title tag",
+      "acceptanceCriteria": [
+        "HTML title tag displays 'Cryonex' or 'Cryonex - [appropriate subtitle]'",
+        "Title is visible in browser tab"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Update the <title> tag to display 'Cryonex - Gamified Task Manager' or similar appropriate subtitle that reflects the app's purpose. Keep all existing meta tags, manifest link, and other head elements unchanged."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add Apple touch icon link in index.html pointing to the 512x512 generated Cryonex logo for iOS PWA support",
+      "acceptanceCriteria": [
+        "Apple touch icon link tag added to index.html head",
+        "Link references the 512x512 generated icon path"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add <link rel='apple-touch-icon' href='/assets/generated/cryonex-icon-512.dim_512x512.png'> to the <head> section. Place it after the existing manifest link and before the theme-color meta tag. This enables iOS PWA support with the Cryonex logo."
         }
       ]
     }

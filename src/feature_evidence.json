@@ -2,12 +2,9 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-frontend-dailytaskssection-component-to-automatically-refresh-and-display-newly-generated-tasks-when-they-become-available-at-midnight",
-      "featureTitle": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
-      "files": [
-        "frontend/src/components/dashboard/DailyTasksSection.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ],
+      "featureId": "feature-generate-pwa-icon-images-from-the-uploaded-cryonex-logo-img-20260218-211452-png-1-jpg-in-standard-pwa-sizes-192x192px-and-512x512px",
+      "featureTitle": "Generate PWA icon images from the uploaded Cryonex logo (IMG_20260218_211452.png-1.jpg) in standard PWA sizes: 192x192px and 512x512px",
+      "files": [],
       "components": [
         "authorization@4.0.0",
         "core-infrastructure@1.0.2",
@@ -17,7 +14,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-2"
       ],
       "confidence": "high"
     }

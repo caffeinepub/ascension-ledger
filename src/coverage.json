@@ -1,52 +1,81 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-21T00:36:57.265Z",
+  "generatedAt": "2026-02-22T14:45:16.569Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
+    "total": 6,
     "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Implement a backend timer system that triggers at 00:00:00 UTC daily to automatically generate AI tasks for all users",
-        "status": "unknown",
-        "plannedFiles": [],
+        "summary": "Update PWA manifest (frontend/public/manifest.json) to use 'Cryonex' as the app name and short_name",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/public/manifest.json"
+        ],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the daily task generation system handles timezone-independent execution and persists tasks immediately upon generation",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Generate PWA icon images from the uploaded Cryonex logo (IMG_20260218_211452.png-1.jpg) in standard PWA sizes: 192x192px and 512x512px",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/cryonex-icon-192.dim_192x192.png",
+          "frontend/public/assets/generated/cryonex-icon-512.dim_512x512.png"
+        ],
+        "matchedFiles": [
+          "frontend/public/assets/generated/cryonex-icon-192.dim_192x192.png",
+          "frontend/public/assets/generated/cryonex-icon-512.dim_512x512.png"
+        ]
       },
       {
         "id": "REQ-3",
-        "summary": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
-        "status": "implemented",
+        "summary": "Update PWA manifest icons array to reference the newly generated Cryonex logo icons at 192x192 and 512x512 sizes",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/dashboard/DailyTasksSection.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/public/manifest.json"
         ],
-        "matchedFiles": [
-          "frontend/src/components/dashboard/DailyTasksSection.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update the PWA manifest theme_color and background_color to match the app's existing cyan/neon cyberpunk theme using the colors from index.css",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/public/manifest.json"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Update index.html to reference the Cryonex app name in the title tag",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/index.html"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add Apple touch icon link in index.html pointing to the 512x512 generated Cryonex logo for iOS PWA support",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/index.html"
+        ],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/dashboard/DailyTasksSection.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/public/assets/generated/cryonex-icon-192.dim_192x192.png",
+    "frontend/public/assets/generated/cryonex-icon-512.dim_512x512.png",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

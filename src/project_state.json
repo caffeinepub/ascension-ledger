@@ -1,16 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Mobile game app being converted to PWA with Cryonex branding",
+  "architectural_notes": [
+    "Web app deployed on Internet Computer blockchain",
+    "PWA configuration needed: manifest.json, service worker, meta tags"
+  ],
   "known_issues": [],
-  "isFixRequest": true,
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Cryonex logo icon optimized for PWA with transparent background, showing the 'CX' letters with cyan glow and red lightning bolt (cryonex-icon-192.dim_192x192.png)\n- Cryonex logo icon optimized for PWA with transparent background, showing the 'CX' letters with cyan glow and red lightning bolt (cryonex-icon-512.dim_512x512.png)",
   "existing_features": [
     {
-      "id": "feature-update-the-frontend-dailytaskssection-component-to-automatically-refresh-and-display-newly-generated-tasks-when-they-become-available-at-midnight",
-      "title": "Update the frontend DailyTasksSection component to automatically refresh and display newly generated tasks when they become available at midnight",
+      "id": "feature-generate-pwa-icon-images-from-the-uploaded-cryonex-logo-img-20260218-211452-png-1-jpg-in-standard-pwa-sizes-192x192px-and-512x512px",
+      "title": "Generate PWA icon images from the uploaded Cryonex logo (IMG_20260218_211452.png-1.jpg) in standard PWA sizes: 192x192px and 512x512px",
       "reqIds": [
-        "REQ-3"
+        "REQ-2"
       ],
       "version": 1
     }
@@ -18,28 +22,58 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "AI should automatically generate and assign tasks daily at 00:00:00",
+      "summary": "Convert web app to PWA with manifest, service worker, and offline capabilities",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Implement a backend timer system that triggers at 00:00:00 UTC daily to automatically generate AI tasks for all users",
+      "summary": "Configure PWA with Cryonex name and uploaded logo image",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Update PWA manifest (frontend/public/manifest.json) to use 'Cryonex' as the app name and short_name",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-3",
-      "summary": "Ensure the daily task generation system handles timezone-independent execution and persists tasks immediately upon generation",
+      "id": "AR-5",
+      "summary": "Update PWA manifest icons array to reference the newly generated Cryonex logo icons at 192x192 and 512x512 sizes",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Update the PWA manifest theme_color and background_color to match the app's existing cyan/neon cyberpunk theme using the colors from index.css",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Update index.html to reference the Cryonex app name in the title tag",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Add Apple touch icon link in index.html pointing to the 512x512 generated Cryonex logo for iOS PWA support",
+      "reqIds": [
+        "REQ-6"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "CRYONEX",
+  "projectName": "Cryonex",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
