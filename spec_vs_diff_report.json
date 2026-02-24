@@ -1,14 +1,30 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T15:37:13.876Z",
-  "summary": "The diff correctly updates `frontend/src/utils/rankUtils.ts` with all nine rank thresholds matching the specified level ranges. The `getRankFromLevel` function implements every boundary (60+, 50+, 40+, 30+, 20+, 15+, 10+, 5+, and default E Rank) as required. The DashboardPage summary confirms the RankBadge component imports and uses `getRankFromLevel`. All acceptance criteria appear satisfied. No missing requirements or hallucinated features were detected.",
+  "generatedAt": "2026-02-24T17:03:34.200Z",
+  "summary": "The diff implements a new 'Current Rank' card on the DashboardPage that shows the rank label with rank-specific color and glow styling derived from getRankFromLevel (from rankUtils.ts), placed in the stats overview grid alongside the existing Level, XP, Coins, and Unspent Points cards. The card is also clickable to open RankInfoDialog. All REQ-1 acceptance criteria appear to be met: rank box is visible on Dashboard, rank label is derived from user level via getRankFromLevel, rank label text uses rank-specific colors, visual style mirrors the existing stat cards, and it updates with the user's level since it reads from the same profile data.",
   "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.97,
+  "hallucinated_features": [
+    {
+      "description": "The rank card is clickable and opens the RankInfoDialog",
+      "reason": "REQ-1 only requires displaying the rank label and color in a styled box. Making the card clickable to open RankInfoDialog was not requested.",
+      "evidence": [
+        "frontend/src/pages/DashboardPage.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "A RankBadge sub-component with its own rank color map was added inside DashboardPage, duplicating rank color logic",
+      "reason": "REQ-1 constraints require reusing getRank utility from rankUtils.ts and not duplicating rank logic. The diff introduces a separate rankColorMap and RankBadge component within DashboardPage that redefines rank colors independently.",
+      "evidence": [
+        "frontend/src/pages/DashboardPage.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.72,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/utils/rankUtils.ts",
+    "frontend/src/pages/DashboardPage.tsx",
     "project_state.json"
   ]
 }

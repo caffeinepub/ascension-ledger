@@ -1,41 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Update rank level thresholds in Command Center / Dashboard",
+  "title": "Add Current Rank Display Box to Dashboard",
+  "projectName": "CRYONEX",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the rank progression thresholds in `frontend/src/utils/rankUtils.ts` to use the new level ranges: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+).",
+      "text": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4"
         ],
         "quotes": [
-          "Lvl 1- 5 - E Rank Hunter\nLvl 5 - 10 - D Rank Hunter\nLvl 10 - 15 - C Rank Hunter\nLvl 15 - 20 - B Rank Hunter\nLvl 20 - 30 - A Rank Hunter\nLvl 30 - 40 - S Rank Hunter\nLvl 40 - 50 - SS Rank Hunter\nLvl 50 - 60 - SSS Rank Hunter\nLvl 60+ :- Shadow Monarch"
+          "add a box to show just the current rank like the box that shows the level"
         ]
       },
       "acceptanceCriteria": [
-        "A player at level 1 displays 'E Rank Hunter'.",
-        "A player at level 5 displays 'D Rank Hunter'.",
-        "A player at level 10 displays 'C Rank Hunter'.",
-        "A player at level 15 displays 'B Rank Hunter'.",
-        "A player at level 20 displays 'A Rank Hunter'.",
-        "A player at level 30 displays 'S Rank Hunter'.",
-        "A player at level 40 displays 'SS Rank Hunter'.",
-        "A player at level 50 displays 'SSS Rank Hunter'.",
-        "A player at level 60 or above displays 'Shadow Monarch'.",
-        "The RankBadge component on the Dashboard / Command Center page reflects the updated thresholds correctly."
+        "A new rank box is visible on the Dashboard page alongside the level box",
+        "The rank box displays the current rank label (e.g., 'E Rank', 'D Rank', 'Shadow Monarch') derived from the user's level",
+        "The rank label text is colored using the rank color from rankUtils.ts",
+        "The rank box matches the visual style (card shape, sizing, typography) of the existing level display box",
+        "The rank box updates correctly when the user's level changes"
       ]
     }
   ],
   "constraints": [
-    "Only update rank threshold values; do not alter rank label text, color mappings, or any other logic unless required by the threshold change."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Reuse the existing getRank utility from frontend/src/utils/rankUtils.ts — do not duplicate rank logic"
   ],
   "nonGoals": [
-    "Adding new ranks beyond those specified.",
-    "Changing rank colors or badge styles.",
-    "Modifying backend level or XP logic."
+    "Adding rank progression details or a rank history table to the new box",
+    "Modifying the existing RankInfoDialog component",
+    "Backend changes"
   ],
   "imageRequirements": {
     "required": [],

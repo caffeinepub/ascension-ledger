@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T15:37:13.878Z",
+  "generatedAt": "2026-02-24T17:03:34.203Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,13 +12,13 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the rank progression thresholds in `frontend/src/utils/rankUtils.ts` to use the new level ranges: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+).",
+        "summary": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/utils/rankUtils.ts"
+          "frontend/src/pages/DashboardPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/utils/rankUtils.ts"
+          "frontend/src/pages/DashboardPage.tsx"
         ]
       }
     ]
@@ -28,7 +28,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/utils/rankUtils.ts",
+    "frontend/src/pages/DashboardPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

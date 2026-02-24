@@ -1,9 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Update the rank level thresholds in `rankUtils.ts` to reflect the new progression ranges.
+**Goal:** Add a rank display box to the Dashboard that shows the user's current rank, styled similarly to the existing level display box.
 
 **Planned changes:**
-- Update rank thresholds in `frontend/src/utils/rankUtils.ts` to: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+)
+- Add a new rank display box component on the Dashboard page, placed adjacent to the existing level box
+- Use the existing `getRank` function from `rankUtils.ts` to derive the rank label and color from the user's current level
+- Style the rank box to match the visual appearance (card shape, sizing, typography) of the level display box
+- Display the rank label text colored with the corresponding rank color from `rankUtils.ts`
 
-**User-visible outcome:** The RankBadge on the Dashboard/Command Center correctly displays the updated rank title based on the player's current level.
+**User-visible outcome:** Users can see their current rank (e.g., "E Rank", "Shadow Monarch") displayed in a styled box on the Dashboard, next to the level box, with the rank label colored according to their rank tier.
