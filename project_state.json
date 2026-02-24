@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "A productivity/game-style app with a Command Center page featuring hunter rank progression based on player level.",
+  "architectural_notes": [
+    "Command Center page displays hunter rank based on player level using defined rank thresholds"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-update-the-rank-progression-thresholds-in-frontend-src-utils-rankutils-ts-to-use-the-new-level-ranges-e-rank-hunter-lvl-1-5-d-rank-hunter-lvl-5-10-c-rank-hunter-lvl-10-15-b-rank-hunter-lvl-15-20-a-rank-hunter-lvl-20-30-s-rank-hunter-lvl-30-40-ss-rank-hunter-lvl-40-50-sss-rank-hunter-lvl-50-60-shadow-monarch-lvl-60",
+      "title": "Update the rank progression thresholds in `frontend/src/utils/rankUtils.ts` to use the new level ranges: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Update rank thresholds on Command Center page: E(1-5), D(5-10), C(10-15), B(15-20), A(20-30), S(30-40), SS(40-50), SSS(50-60), Shadow Monarch(60+)",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Update rank level thresholds in Command Center / Dashboard",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

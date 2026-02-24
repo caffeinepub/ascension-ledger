@@ -1,0 +1,30 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Update rank level thresholds in Command Center / Dashboard",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Update rank progression thresholds in rankUtils.ts to implement the new level ranges for all nine ranks from E Rank Hunter through Shadow Monarch",
+      "acceptanceCriteria": [
+        "A player at level 1 displays 'E Rank Hunter'.",
+        "A player at level 5 displays 'D Rank Hunter'.",
+        "A player at level 10 displays 'C Rank Hunter'.",
+        "A player at level 15 displays 'B Rank Hunter'.",
+        "A player at level 20 displays 'A Rank Hunter'.",
+        "A player at level 30 displays 'S Rank Hunter'.",
+        "A player at level 40 displays 'SS Rank Hunter'.",
+        "A player at level 50 displays 'SSS Rank Hunter'.",
+        "A player at level 60 or above displays 'Shadow Monarch'.",
+        "The RankBadge component on the Dashboard / Command Center page reflects the updated thresholds correctly."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/rankUtils.ts",
+          "operation": "modify",
+          "description": "Update the getRankFromLevel function to use the new threshold values: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+). Only modify the numeric level comparison logic; preserve all rank label text and color mappings exactly as they are."
+        }
+      ]
+    }
+  ]
+}

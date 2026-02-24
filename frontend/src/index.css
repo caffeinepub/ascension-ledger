@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.5rem;
+        
+        /* Light mode - sci-fi metallic with cyan/green accents */
+        --background: 0.95 0.01 220;
+        --foreground: 0.20 0.02 220;
+        --card: 0.98 0.005 220;
+        --card-foreground: 0.20 0.02 220;
+        --popover: 0.98 0.005 220;
+        --popover-foreground: 0.20 0.02 220;
+        
+        /* Cyan primary for sci-fi feel */
+        --primary: 0.65 0.18 195;
+        --primary-foreground: 0.98 0.005 220;
+        
+        --secondary: 0.88 0.02 220;
+        --secondary-foreground: 0.25 0.02 220;
+        --muted: 0.92 0.015 220;
+        --muted-foreground: 0.50 0.02 220;
+        
+        /* Green accent for tech aesthetic */
+        --accent: 0.70 0.16 155;
+        --accent-foreground: 0.98 0.005 220;
+        
+        --destructive: 0.55 0.22 15;
+        --destructive-foreground: 0.98 0.005 220;
+        --border: 0.85 0.02 220;
+        --input: 0.85 0.02 220;
+        --ring: 0.65 0.18 195;
+        
+        --chart-1: 0.65 0.18 195;
+        --chart-2: 0.70 0.16 155;
+        --chart-3: 0.60 0.14 175;
+        --chart-4: 0.55 0.20 15;
+        --chart-5: 0.68 0.15 185;
+    }
+
+    .dark {
+        /* Dark mode - deep space black with bright white text */
+        --background: 0.12 0.015 220;
+        --foreground: 0.98 0.005 220;
+        --card: 0.16 0.02 220;
+        --card-foreground: 0.98 0.005 220;
+        --popover: 0.14 0.02 220;
+        --popover-foreground: 0.98 0.005 220;
+        
+        /* Bright neon cyan for dark mode */
+        --primary: 0.72 0.20 195;
+        --primary-foreground: 0.12 0.015 220;
+        
+        --secondary: 0.22 0.03 220;
+        --secondary-foreground: 0.95 0.005 220;
+        --muted: 0.25 0.03 220;
+        --muted-foreground: 0.85 0.01 220;
+        
+        /* Neon green accent */
+        --accent: 0.75 0.18 155;
+        --accent-foreground: 0.12 0.015 220;
+        
+        --destructive: 0.58 0.24 15;
+        --destructive-foreground: 0.98 0.005 220;
+        --border: 0.28 0.04 220;
+        --input: 0.28 0.04 220;
+        --ring: 0.72 0.20 195;
+        
+        --chart-1: 0.72 0.20 195;
+        --chart-2: 0.75 0.18 155;
+        --chart-3: 0.68 0.16 175;
+        --chart-4: 0.58 0.24 15;
+        --chart-5: 0.70 0.17 185;
+
+        /* Custom text color variables for enhanced visibility */
+        --text-primary: rgba(255, 255, 255, 0.95);
+        --text-secondary: rgba(255, 255, 255, 0.75);
+        --text-muted: rgba(255, 255, 255, 0.6);
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+        background-image: url('/assets/IMG_20260219_080023.png.jpg');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        color: var(--text-primary, rgba(255, 255, 255, 0.95));
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold;
+        color: var(--text-primary, rgba(255, 255, 255, 0.95));
+    }
+
+    /* Semi-transparent dark overlays for UI components */
+    .card-overlay {
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(12px);
+    }
+
+    .container-overlay {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+    }
+
+    .glass-overlay {
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(16px);
+    }
+}

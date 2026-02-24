@@ -1,0 +1,44 @@
+{
+  "kind": "build_request",
+  "title": "Update rank level thresholds in Command Center / Dashboard",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Update the rank progression thresholds in `frontend/src/utils/rankUtils.ts` to use the new level ranges: E Rank Hunter (Lvl 1–5), D Rank Hunter (Lvl 5–10), C Rank Hunter (Lvl 10–15), B Rank Hunter (Lvl 15–20), A Rank Hunter (Lvl 20–30), S Rank Hunter (Lvl 30–40), SS Rank Hunter (Lvl 40–50), SSS Rank Hunter (Lvl 50–60), Shadow Monarch (Lvl 60+).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Lvl 1- 5 - E Rank Hunter\nLvl 5 - 10 - D Rank Hunter\nLvl 10 - 15 - C Rank Hunter\nLvl 15 - 20 - B Rank Hunter\nLvl 20 - 30 - A Rank Hunter\nLvl 30 - 40 - S Rank Hunter\nLvl 40 - 50 - SS Rank Hunter\nLvl 50 - 60 - SSS Rank Hunter\nLvl 60+ :- Shadow Monarch"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A player at level 1 displays 'E Rank Hunter'.",
+        "A player at level 5 displays 'D Rank Hunter'.",
+        "A player at level 10 displays 'C Rank Hunter'.",
+        "A player at level 15 displays 'B Rank Hunter'.",
+        "A player at level 20 displays 'A Rank Hunter'.",
+        "A player at level 30 displays 'S Rank Hunter'.",
+        "A player at level 40 displays 'SS Rank Hunter'.",
+        "A player at level 50 displays 'SSS Rank Hunter'.",
+        "A player at level 60 or above displays 'Shadow Monarch'.",
+        "The RankBadge component on the Dashboard / Command Center page reflects the updated thresholds correctly."
+      ]
+    }
+  ],
+  "constraints": [
+    "Only update rank threshold values; do not alter rank label text, color mappings, or any other logic unless required by the threshold change."
+  ],
+  "nonGoals": [
+    "Adding new ranks beyond those specified.",
+    "Changing rank colors or badge styles.",
+    "Modifying backend level or XP logic."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

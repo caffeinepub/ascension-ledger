@@ -1,0 +1,131 @@
+[
+  {
+    "match": "service-worker.js",
+    "headers": {
+      "Content-Type": "text/javascript",
+      "Cache-Control": "no-cache, no-store, must-revalidate"
+    }
+  },
+  {
+    "match": "index.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Cache-Control": "no-cache, no-store, must-revalidate"
+    }
+  },
+  {
+    "match": "assets/generated/cryonex-icon-192.dim_192x192.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "assets/generated/cryonex-icon-512.dim_512x512.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "assets/generated/*.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "**/*.png",
+    "headers": {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.jpg",
+    "headers": {
+      "Content-Type": "image/jpeg",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.jpeg",
+    "headers": {
+      "Content-Type": "image/jpeg",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.svg",
+    "headers": {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.webp",
+    "headers": {
+      "Content-Type": "image/webp",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.ico",
+    "headers": {
+      "Content-Type": "image/x-icon",
+      "Cache-Control": "public, max-age=2592000"
+    }
+  },
+  {
+    "match": "**/*.woff2",
+    "headers": {
+      "Content-Type": "font/woff2",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "**/*.woff",
+    "headers": {
+      "Content-Type": "font/woff",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "**/*.js",
+    "headers": {
+      "Content-Type": "text/javascript",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "**/*.css",
+    "headers": {
+      "Content-Type": "text/css",
+      "Cache-Control": "public, max-age=31536000, immutable"
+    }
+  },
+  {
+    "match": "**/*.json",
+    "headers": {
+      "Content-Type": "application/json",
+      "Cache-Control": "public, max-age=0, must-revalidate"
+    }
+  },
+  {
+    "match": "**/*.html",
+    "headers": {
+      "Content-Type": "text/html",
+      "Cache-Control": "no-cache, no-store, must-revalidate"
+    }
+  },
+  {
+    "match": "**/*",
+    "headers": {
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Referrer-Policy": "no-referrer",
+      "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
+    }
+  }
+]
