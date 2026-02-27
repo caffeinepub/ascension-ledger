@@ -9,6 +9,8 @@ import { StatsPage } from './pages/StatsPage';
 import { SkillsPage } from './pages/SkillsPage';
 import { ProfileSettingsPage } from './pages/ProfileSettingsPage';
 import { CustomTasksPage } from './pages/CustomTasksPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
+import { CheatStorePage } from './pages/CheatStorePage';
 import { LandingPage } from './pages/LandingPage';
 import { InitializationError } from './components/auth/InitializationError';
 import { useState, useEffect } from 'react';
@@ -16,7 +18,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { useActor } from './hooks/useActor';
 import { isDraftEnvironment } from './utils/cacheControl';
 
-export type AppScreen = 'dashboard' | 'missions' | 'stats' | 'skills' | 'profile' | 'customTasks';
+export type AppScreen = 'dashboard' | 'missions' | 'stats' | 'skills' | 'profile' | 'customTasks' | 'leaderboard' | 'cheatStore';
 
 const INITIALIZATION_TIMEOUT = 10000; // 10 seconds (reduced from 20)
 const MAX_RETRY_ATTEMPTS = 3;
@@ -360,6 +362,10 @@ export default function App() {
         return <StatsPage />;
       case 'skills':
         return <SkillsPage />;
+      case 'leaderboard':
+        return <LeaderboardPage />;
+      case 'cheatStore':
+        return <CheatStorePage />;
       case 'profile':
         return <ProfileSettingsPage />;
       case 'customTasks':

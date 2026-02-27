@@ -18,6 +18,7 @@ interface RankTier {
   bg: string;
   border: string;
   text: string;
+  avatarSrc: string;
 }
 
 const RANK_TIERS: RankTier[] = [
@@ -29,6 +30,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(139,92,246,0.15)',
     border: 'rgba(234,179,8,0.6)',
     text: '#fbbf24',
+    avatarSrc: '/assets/generated/rank-avatar-shadow-monarch.dim_128x128.png',
   },
   {
     rank: 'SSS Rank Hunter',
@@ -38,6 +40,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(239,68,68,0.12)',
     border: 'rgba(239,68,68,0.5)',
     text: '#f87171',
+    avatarSrc: '/assets/generated/rank-avatar-national.dim_128x128.png',
   },
   {
     rank: 'SS Rank Hunter',
@@ -47,6 +50,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(249,115,22,0.12)',
     border: 'rgba(249,115,22,0.5)',
     text: '#fb923c',
+    avatarSrc: '/assets/generated/rank-avatar-national.dim_128x128.png',
   },
   {
     rank: 'S Rank Hunter',
@@ -56,6 +60,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(234,179,8,0.12)',
     border: 'rgba(234,179,8,0.5)',
     text: '#facc15',
+    avatarSrc: '/assets/generated/rank-avatar-s.dim_128x128.png',
   },
   {
     rank: 'A Rank Hunter',
@@ -65,6 +70,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(34,197,94,0.12)',
     border: 'rgba(34,197,94,0.5)',
     text: '#4ade80',
+    avatarSrc: '/assets/generated/rank-avatar-a.dim_128x128.png',
   },
   {
     rank: 'B Rank Hunter',
@@ -74,6 +80,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(6,182,212,0.12)',
     border: 'rgba(6,182,212,0.5)',
     text: '#22d3ee',
+    avatarSrc: '/assets/generated/rank-avatar-b.dim_128x128.png',
   },
   {
     rank: 'C Rank Hunter',
@@ -83,6 +90,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(99,102,241,0.12)',
     border: 'rgba(99,102,241,0.5)',
     text: '#818cf8',
+    avatarSrc: '/assets/generated/rank-avatar-c.dim_128x128.png',
   },
   {
     rank: 'D Rank Hunter',
@@ -92,6 +100,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(168,85,247,0.12)',
     border: 'rgba(168,85,247,0.5)',
     text: '#c084fc',
+    avatarSrc: '/assets/generated/rank-avatar-d.dim_128x128.png',
   },
   {
     rank: 'E Rank Hunter',
@@ -101,6 +110,7 @@ const RANK_TIERS: RankTier[] = [
     bg: 'rgba(148,163,184,0.10)',
     border: 'rgba(148,163,184,0.4)',
     text: '#94a3b8',
+    avatarSrc: '/assets/generated/rank-avatar-e.dim_128x128.png',
   },
 ];
 
@@ -113,6 +123,9 @@ interface RankInfoDialogProps {
 export function RankInfoDialog({ userLevel, open, onOpenChange }: RankInfoDialogProps) {
   const currentRankInfo = getRankFromLevel(userLevel);
   const currentLevel = Number(userLevel);
+
+  // Find the current tier to get its avatar
+  const currentTier = RANK_TIERS.find((t) => t.rank === currentRankInfo.rank) ?? RANK_TIERS[RANK_TIERS.length - 1];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -140,23 +153,49 @@ export function RankInfoDialog({ userLevel, open, onOpenChange }: RankInfoDialog
             borderColor: currentRankInfo.isShadowMonarch ? 'rgba(234,179,8,0.6)' : 'rgba(255,255,255,0.12)',
           }}
         >
-          <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Current Rank</p>
-          <div className="flex items-center justify-between">
-            <span
-              className="text-lg font-bold tracking-wide"
+          <p className="text-xs text-white/50 uppercase tracking-widest mb-2">Current Rank</p>
+          <div className="flex items-center gap-3">
+            {/* Avatar in current rank highlight */}
+            <div
+              className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full"
               style={{
-                color: currentRankInfo.isShadowMonarch ? '#fbbf24' : undefined,
+                boxShadow: currentRankInfo.isShadowMonarch
+                  ? '0 0 16px rgba(251,191,36,0.5), 0 0 4px rgba(234,179,8,0.5)'
+                  : `0 0 12px ${currentTier.border}`,
+                border: `2px solid ${currentTier.border}`,
                 background: currentRankInfo.isShadowMonarch
-                  ? 'linear-gradient(90deg, #c084fc, #fbbf24)'
-                  : undefined,
-                WebkitBackgroundClip: currentRankInfo.isShadowMonarch ? 'text' : undefined,
-                WebkitTextFillColor: currentRankInfo.isShadowMonarch ? 'transparent' : undefined,
-                backgroundClip: currentRankInfo.isShadowMonarch ? 'text' : undefined,
+                  ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(234,179,8,0.2) 100%)'
+                  : 'rgba(0,0,0,0.4)',
               }}
             >
-              {currentRankInfo.rank}
-            </span>
-            <span className="text-sm text-white/60 font-mono">LVL {currentLevel}</span>
+              <img
+                src={currentTier.avatarSrc}
+                alt={`${currentRankInfo.rank} avatar`}
+                className="h-full w-full object-cover"
+                style={{
+                  filter: currentRankInfo.isShadowMonarch
+                    ? 'drop-shadow(0 0 6px rgba(251,191,36,0.7))'
+                    : `drop-shadow(0 0 4px ${currentTier.border})`,
+                }}
+              />
+            </div>
+            <div className="flex-1 flex items-center justify-between">
+              <span
+                className="text-lg font-bold tracking-wide"
+                style={{
+                  color: currentRankInfo.isShadowMonarch ? '#fbbf24' : currentTier.text,
+                  background: currentRankInfo.isShadowMonarch
+                    ? 'linear-gradient(90deg, #c084fc, #fbbf24)'
+                    : undefined,
+                  WebkitBackgroundClip: currentRankInfo.isShadowMonarch ? 'text' : undefined,
+                  WebkitTextFillColor: currentRankInfo.isShadowMonarch ? 'transparent' : undefined,
+                  backgroundClip: currentRankInfo.isShadowMonarch ? 'text' : undefined,
+                }}
+              >
+                {currentRankInfo.rank}
+              </span>
+              <span className="text-sm text-white/60 font-mono">LVL {currentLevel}</span>
+            </div>
           </div>
         </div>
 
@@ -182,11 +221,35 @@ export function RankInfoDialog({ userLevel, open, onOpenChange }: RankInfoDialog
                     : 'none',
                 }}
               >
-                <div className="flex items-center gap-2">
-                  <Shield
-                    className="h-3.5 w-3.5 shrink-0"
-                    style={{ color: isCurrent ? tier.text : 'rgba(255,255,255,0.25)' }}
-                  />
+                <div className="flex items-center gap-2.5">
+                  {/* Rank avatar in table row */}
+                  <div
+                    className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full"
+                    style={{
+                      border: `1px solid ${isCurrent ? tier.border : 'rgba(255,255,255,0.12)'}`,
+                      background: isCurrent
+                        ? tier.isShadowMonarch
+                          ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(234,179,8,0.2) 100%)'
+                          : 'rgba(0,0,0,0.4)'
+                        : 'rgba(0,0,0,0.3)',
+                      opacity: isCurrent ? 1 : 0.5,
+                      boxShadow: isCurrent ? `0 0 6px ${tier.border}` : 'none',
+                    }}
+                  >
+                    <img
+                      src={tier.avatarSrc}
+                      alt={`${tier.rank} avatar`}
+                      className="h-full w-full object-cover"
+                      style={{
+                        filter: isCurrent
+                          ? tier.isShadowMonarch
+                            ? 'drop-shadow(0 0 4px rgba(251,191,36,0.6))'
+                            : `drop-shadow(0 0 3px ${tier.border})`
+                          : 'grayscale(60%)',
+                      }}
+                    />
+                  </div>
+
                   <span
                     className="text-sm font-medium"
                     style={{ color: isCurrent ? tier.text : 'rgba(255,255,255,0.55)' }}
@@ -207,7 +270,7 @@ export function RankInfoDialog({ userLevel, open, onOpenChange }: RankInfoDialog
                   )}
                 </div>
                 <span
-                  className="text-xs font-mono"
+                  className="text-xs font-mono shrink-0"
                   style={{ color: isCurrent ? tier.text : 'rgba(255,255,255,0.35)' }}
                 >
                   {levelRange}

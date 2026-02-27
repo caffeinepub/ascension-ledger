@@ -1,6 +1,6 @@
 import { LoginButton } from '../auth/LoginButton';
 import type { AppScreen } from '../../App';
-import { Swords, TrendingUp, Zap, User, Activity, ListChecks, Menu, X } from 'lucide-react';
+import { Swords, TrendingUp, Zap, User, Activity, ListChecks, Menu, X, Trophy, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 import { OfflineIndicator } from './OfflineIndicator';
 
@@ -19,6 +19,8 @@ export function AppLayout({ children, currentScreen, onNavigate }: AppLayoutProp
     { id: 'customTasks', label: 'Custom Tasks', icon: <ListChecks className="h-5 w-5" /> },
     { id: 'stats', label: 'Attributes', icon: <TrendingUp className="h-5 w-5" /> },
     { id: 'skills', label: 'Skill Matrix', icon: <Zap className="h-5 w-5" /> },
+    { id: 'leaderboard', label: 'Leaderboard', icon: <Trophy className="h-5 w-5" /> },
+    { id: 'cheatStore', label: 'Cheat Store', icon: <ShoppingBag className="h-5 w-5" /> },
     { id: 'profile', label: 'Profile', icon: <User className="h-5 w-5" /> },
   ];
 
@@ -123,7 +125,7 @@ export function AppLayout({ children, currentScreen, onNavigate }: AppLayoutProp
       {/* Footer */}
       <footer className="border-t border-border/50 py-3 sm:py-4 shrink-0" style={{ background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(12px)' }}>
         <div className="container mx-auto px-4 text-center text-xs sm:text-sm text-white/75">
-          © {new Date().getFullYear()} · Built with love using{' '}
+          © {new Date().getFullYear()} · Built with ❤️ using{' '}
           <a
             href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
             target="_blank"

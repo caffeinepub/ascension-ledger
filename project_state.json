@@ -1,30 +1,30 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project includes a Command Center page with task boxes, rank dialog, and level display. User is iterating on UI components.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-add-a-rank-display-box-to-the-dashboard-page-that-shows-the-user-s-current-rank-label-and-styled-rank-color-mirroring-the-visual-style-and-layout-of-the-existing-level-display-box-use-the-existing-rankutils-ts-getrank-function-to-derive-the-rank-from-the-user-s-current-level-place-the-rank-box-adjacent-to-or-near-the-level-box-on-the-dashboard",
-      "title": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a box on the Command Center page to display the current rank, similar to the level box",
-      "reqIds": [],
+      "summary": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "CRYONEX",
+  "projectName": "Add next small batch of skills to the skill matrix",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

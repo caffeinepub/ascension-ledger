@@ -1,34 +1,38 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T17:03:34.203Z",
+  "generatedAt": "2026-02-26T18:03:59.555Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
-        "status": "implemented",
+        "summary": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/pages/DashboardPage.tsx"
+          "frontend/src/pages/SkillsPage.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/pages/DashboardPage.tsx"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/DashboardPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

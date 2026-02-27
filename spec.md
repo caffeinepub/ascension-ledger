@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Add a rank display box to the Dashboard that shows the user's current rank, styled similarly to the existing level display box.
+**Goal:** Add the next small batch (up to 5) of discipline skills to the skill matrix in the backend and reflect them on the frontend Skills page.
 
 **Planned changes:**
-- Add a new rank display box component on the Dashboard page, placed adjacent to the existing level box
-- Use the existing `getRank` function from `rankUtils.ts` to derive the rank label and color from the user's current level
-- Style the rank box to match the visual appearance (card shape, sizing, typography) of the level display box
-- Display the rank label text colored with the corresponding rank color from `rankUtils.ts`
+- Add up to 5 new discipline skills to the backend skill matrix in `main.mo`, each with all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults)
+- Update `SkillsPage.tsx` to display the newly added skills in the correct category group, showing unlock requirements and status consistently with existing entries
 
-**User-visible outcome:** Users can see their current rank (e.g., "E Rank", "Shadow Monarch") displayed in a styled box on the Dashboard, next to the level box, with the rank label colored according to their rank tier.
+**User-visible outcome:** The Skills page shows the new batch of discipline skills with their unlock requirements and status, while all existing skills and game state remain intact.

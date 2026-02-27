@@ -1,38 +1,54 @@
 {
   "kind": "build_request",
-  "title": "Add Current Rank Display Box to Dashboard",
-  "projectName": "CRYONEX",
+  "title": "Add next small batch of skills to the skill matrix",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
-      "target": "frontend",
+      "text": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-8"
         ],
         "quotes": [
-          "add a box to show just the current rank like the box that shows the level"
+          "Smaller sets of skills"
         ]
       },
       "acceptanceCriteria": [
-        "A new rank box is visible on the Dashboard page alongside the level box",
-        "The rank box displays the current rank label (e.g., 'E Rank', 'D Rank', 'Shadow Monarch') derived from the user's level",
-        "The rank label text is colored using the rank color from rankUtils.ts",
-        "The rank box matches the visual style (card shape, sizing, typography) of the existing level display box",
-        "The rank box updates correctly when the user's level changes"
+        "Up to 5 new discipline skills are added to the backend skill matrix without causing a build failure",
+        "Each new skill has all required fields populated correctly",
+        "Existing skills and game state are preserved"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-8"
+        ],
+        "quotes": [
+          "Smaller sets of skills"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Newly added skills appear in the correct category group on the Skills page",
+        "Unlock requirements and status are displayed correctly for new skills",
+        "Existing skill display is not broken"
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "Reuse the existing getRank utility from frontend/src/utils/rankUtils.ts — do not duplicate rank logic"
+    "Add no more than 5 skills in this batch to avoid build failures",
+    "Do not modify frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui",
+    "Preserve all existing skills and player state"
   ],
   "nonGoals": [
-    "Adding rank progression details or a rank history table to the new box",
-    "Modifying the existing RankInfoDialog component",
-    "Backend changes"
+    "Adding all 39 skills in a single batch",
+    "Modifying combat or mission logic",
+    "Changing the skill unlock mechanism or UI layout"
   ],
   "imageRequirements": {
     "required": [],

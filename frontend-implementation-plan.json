@@ -1,23 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Current Rank Display Box to Dashboard",
+  "title": "Add next small batch of skills to the skill matrix",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add a rank display box to the Dashboard page showing the user's current rank label and color, styled to match the existing level display box, using getRank from rankUtils.ts",
+      "id": "REQ-2",
+      "summary": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
       "acceptanceCriteria": [
-        "A new rank box is visible on the Dashboard page alongside the level box",
-        "The rank box displays the current rank label (e.g., 'E Rank', 'D Rank', 'Shadow Monarch') derived from the user's level",
-        "The rank label text is colored using the rank color from rankUtils.ts",
-        "The rank box matches the visual style (card shape, sizing, typography) of the existing level display box",
-        "The rank box updates correctly when the user's level changes"
+        "Newly added skills appear in the correct category group on the Skills page",
+        "Unlock requirements and status are displayed correctly for new skills",
+        "Existing skill display is not broken"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/DashboardPage.tsx",
+          "path": "frontend/src/pages/SkillsPage.tsx",
           "operation": "modify",
-          "description": "Add a new rank display box adjacent to the existing level display box in the dashboard layout. Import getRank from utils/rankUtils.ts and use it to derive the rank object from userProfile.level. Display the rank label with inline styling using the rank color. Ensure the box structure mirrors the level box Card component styling (same dimensions, padding, typography, and card appearance)."
+          "description": "Review the current skill display implementation to ensure it properly handles the newly added backend skills. Verify that the listSkills() backend method is being called and that skills are correctly grouped by category. Ensure unlock status checking via the userProfile.unlockedSkills array works for any new skill IDs added to the backend. Confirm that skill requirements (minLevel and minStats) are displayed consistently for all skills including the new batch. No structural changes should be needed if the backend interface remains consistent."
         }
       ]
     }

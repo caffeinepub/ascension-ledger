@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { UserProfile, Mission, Skill, QuestionnaireAnswers, DailyTaskRecommendation, CustomTaskWithStatus, UserMission } from '../backend';
+import type { UserProfile, Mission, Skill, DisciplineSkill, QuestionnaireAnswers, DailyTaskRecommendation, CustomTaskWithStatus, UserMission, LeaderboardEntry, CheatItem } from '../backend';
+import { PurchaseResult } from '../backend';
 import { toast } from 'sonner';
 
 // Profile hooks
@@ -208,9 +209,9 @@ export function useGetDailyTaskRecommendations() {
       return recommendations;
     },
     enabled: !!actor && actorReady && !actorFetching,
-    staleTime: 60000, // Consider data fresh for 1 minute
-    refetchOnMount: true, // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 60000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -466,6 +467,100 @@ export function useUnlockSkill() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to unlock skill');
+    },
+  });
+}
+
+// Discipline Skills hooks
+export function useListDisciplineSkills() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
+
+  return useQuery<DisciplineSkill[]>({
+    queryKey: ['disciplineSkills'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.listDisciplineSkills();
+    },
+    enabled: !!actor && actorReady && !actorFetching,
+  });
+}
+
+// Leaderboard hook
+export function useLeaderboard() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
+
+  return useQuery<LeaderboardEntry[]>({
+    queryKey: ['leaderboard'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      const entries = await actor.getLeaderboard();
+      // Sort by level descending (highest level = rank 1)
+      return [...entries].sort((a, b) => Number(b.level) - Number(a.level));
+    },
+    enabled: !!actor && actorReady && !actorFetching,
+    staleTime: 60000,
+  });
+}
+
+// Cheat Store hooks
+export function useGetCheatItems() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
+
+  return useQuery<CheatItem[]>({
+    queryKey: ['cheatItems'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getCheatItems();
+    },
+    enabled: !!actor && actorReady && !actorFetching,
+    staleTime: 300000,
+  });
+}
+
+export function useGetUserCheatPurchasesToday() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const actorReady = !!actor && !actorFetching;
+
+  return useQuery<Array<[string, bigint]>>({
+    queryKey: ['userCheatPurchasesToday'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getUserCheatPurchasesToday();
+    },
+    enabled: !!actor && actorReady && !actorFetching,
+    staleTime: 0,
+  });
+}
+
+export function usePurchaseCheat() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (cheatId: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.purchaseCheat(cheatId);
+    },
+    onSuccess: (result) => {
+      if (result === PurchaseResult.success) {
+        toast.success('Enjoy your treat! 🎉');
+        queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+        queryClient.invalidateQueries({ queryKey: ['userCheatPurchasesToday'] });
+      } else if (result === PurchaseResult.insufficientCredits) {
+        toast.error('Not enough credits to purchase this cheat.');
+      } else if (result === PurchaseResult.dailyLimitReached) {
+        toast.error('Daily limit reached for this cheat. Try again tomorrow!');
+      } else if (result === PurchaseResult.itemNotFound) {
+        toast.error('Cheat item not found.');
+      } else if (result === PurchaseResult.unauthorized) {
+        toast.error('You must be logged in to purchase cheats.');
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to purchase cheat');
     },
   });
 }

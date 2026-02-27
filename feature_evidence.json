@@ -1,24 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-add-a-rank-display-box-to-the-dashboard-page-that-shows-the-user-s-current-rank-label-and-styled-rank-color-mirroring-the-visual-style-and-layout-of-the-existing-level-display-box-use-the-existing-rankutils-ts-getrank-function-to-derive-the-rank-from-the-user-s-current-level-place-the-rank-box-adjacent-to-or-near-the-level-box-on-the-dashboard",
-      "featureTitle": "Add a rank display box to the Dashboard page that shows the user's current rank label and styled rank color, mirroring the visual style and layout of the existing level display box. Use the existing `rankUtils.ts` getRank function to derive the rank from the user's current level. Place the rank box adjacent to or near the level box on the dashboard.",
-      "files": [
-        "frontend/src/pages/DashboardPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }

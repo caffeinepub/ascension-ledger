@@ -29,6 +29,23 @@ const STAT_NAMES = [
   'Work',
 ];
 
+// Map rank names to their avatar image paths
+const RANK_AVATAR_MAP: Record<string, string> = {
+  'E Rank Hunter': '/assets/generated/rank-avatar-e.dim_128x128.png',
+  'D Rank Hunter': '/assets/generated/rank-avatar-d.dim_128x128.png',
+  'C Rank Hunter': '/assets/generated/rank-avatar-c.dim_128x128.png',
+  'B Rank Hunter': '/assets/generated/rank-avatar-b.dim_128x128.png',
+  'A Rank Hunter': '/assets/generated/rank-avatar-a.dim_128x128.png',
+  'S Rank Hunter': '/assets/generated/rank-avatar-s.dim_128x128.png',
+  'SS Rank Hunter': '/assets/generated/rank-avatar-national.dim_128x128.png',
+  'SSS Rank Hunter': '/assets/generated/rank-avatar-national.dim_128x128.png',
+  'Shadow Monarch': '/assets/generated/rank-avatar-shadow-monarch.dim_128x128.png',
+};
+
+function getRankAvatar(rank: string): string {
+  return RANK_AVATAR_MAP[rank] ?? RANK_AVATAR_MAP['E Rank Hunter'];
+}
+
 function RankBadge({ level, onClick }: { level: bigint; onClick?: () => void }) {
   const { rank, isShadowMonarch } = getRankFromLevel(level);
 
@@ -139,6 +156,7 @@ export function DashboardPage() {
   const xpProgress = Number(profile.xp) / Number(profile.xpToNextLevel) * 100;
   const { rank, isShadowMonarch } = getRankFromLevel(profile.level);
   const rankStyle = rankColorMap[rank] ?? rankColorMap['E Rank Hunter'];
+  const rankAvatarSrc = getRankAvatar(rank);
 
   return (
     <div className="space-y-6">
@@ -225,9 +243,9 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Current Rank Card — clickable to open rank dialog */}
+        {/* Current Rank Card — clickable to open rank dialog, with rank avatar */}
         <Card
-          className="transition-colors cursor-pointer"
+          className="transition-colors cursor-pointer overflow-hidden"
           style={{
             background: 'rgba(0, 0, 0, 0.8)',
             backdropFilter: 'blur(12px)',
@@ -242,10 +260,36 @@ export function DashboardPage() {
             <CardTitle className="text-sm font-medium text-white/95">Current Rank</CardTitle>
             <Shield className="h-4 w-4" style={{ color: rankStyle.text }} />
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
+            {/* Rank Avatar — enlarged to h-24 w-24 */}
+            <div className="mb-2 flex justify-center">
+              <div
+                className="relative h-24 w-24 overflow-hidden rounded-full"
+                style={{
+                  boxShadow: `0 0 20px ${rankStyle.glow}, 0 0 6px ${rankStyle.border}`,
+                  border: `2px solid ${rankStyle.border}`,
+                  background: isShadowMonarch
+                    ? 'linear-gradient(135deg, rgba(139,92,246,0.2) 0%, rgba(234,179,8,0.2) 100%)'
+                    : `rgba(0,0,0,0.4)`,
+                }}
+              >
+                <img
+                  src={rankAvatarSrc}
+                  alt={`${rank} avatar`}
+                  className="h-full w-full object-cover"
+                  style={{
+                    filter: isShadowMonarch
+                      ? `drop-shadow(0 0 8px rgba(251,191,36,0.7))`
+                      : `drop-shadow(0 0 5px ${rankStyle.glow})`,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Rank Name */}
             {isShadowMonarch ? (
               <div
-                className="text-xl font-bold tracking-wide"
+                className="text-center text-sm font-bold tracking-wide leading-tight"
                 style={{
                   background: 'linear-gradient(90deg, #c084fc, #fbbf24, #c084fc)',
                   WebkitBackgroundClip: 'text',
@@ -258,7 +302,7 @@ export function DashboardPage() {
               </div>
             ) : (
               <div
-                className="text-xl font-bold tracking-wide"
+                className="text-center text-sm font-bold tracking-wide leading-tight"
                 style={{
                   color: rankStyle.text,
                   textShadow: `0 0 8px ${rankStyle.glow}`,
@@ -267,7 +311,7 @@ export function DashboardPage() {
                 {rank}
               </div>
             )}
-            <div className="mt-1 flex items-center gap-1.5">
+            <div className="mt-1 flex items-center justify-center gap-1.5">
               <Info className="h-3 w-3 text-white/30" />
               <span className="text-xs text-white/40">tap for details</span>
             </div>
@@ -383,14 +427,14 @@ export function DashboardPage() {
               <p className="text-sm font-medium text-white/75">{COPY.dashboard.skillsUnlocked}</p>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/40">{profile.unlockedSkills.length}</Badge>
-                <span className="text-sm text-white/75">active</span>
+                <span className="text-sm text-white/75">unlocked</span>
               </div>
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-white/75">{COPY.dashboard.inventoryItems}</p>
+              <p className="text-sm font-medium text-white/75">{COPY.dashboard.coins}</p>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/40">{profile.inventory.length}</Badge>
-                <span className="text-sm text-white/75">items</span>
+                <Badge variant="secondary" className="bg-primary/20 text-primary border-primary/40">{Number(profile.coins)}</Badge>
+                <span className="text-sm text-white/75">coins</span>
               </div>
             </div>
           </div>
