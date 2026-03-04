@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Plus, Minus } from 'lucide-react';
-import { useCreateCustomTask } from '../../hooks/useQueries';
-import { COPY } from '../../content/copy';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Minus, Plus } from "lucide-react";
+import { useState } from "react";
+import { COPY } from "../../content/copy";
+import { useCreateCustomTask } from "../../hooks/useQueries";
 
 export function CustomTaskForm() {
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [points, setPoints] = useState(10);
   const [attributePoints, setAttributePoints] = useState(1);
   const createTask = useCreateCustomTask();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) {
       return;
     }
@@ -27,14 +27,14 @@ export function CustomTaskForm() {
       return;
     }
 
-    await createTask.mutateAsync({ 
-      title: title.trim(), 
-      points: BigInt(points), 
-      attributePoints: BigInt(attributePoints) 
+    await createTask.mutateAsync({
+      title: title.trim(),
+      points: BigInt(points),
+      attributePoints: BigInt(attributePoints),
     });
-    
+
     // Reset form
-    setTitle('');
+    setTitle("");
     setPoints(10);
     setAttributePoints(1);
   };
@@ -101,8 +101,8 @@ export function CustomTaskForm() {
             type="number"
             value={points}
             onChange={(e) => {
-              const val = parseInt(e.target.value);
-              if (!isNaN(val) && val >= 1 && val <= 100) {
+              const val = Number.parseInt(e.target.value);
+              if (!Number.isNaN(val) && val >= 1 && val <= 100) {
                 setPoints(val);
               }
             }}
@@ -121,7 +121,9 @@ export function CustomTaskForm() {
           >
             <Plus className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-white/60">{COPY.customTasks.pointsRange}</span>
+          <span className="text-sm text-white/60">
+            {COPY.customTasks.pointsRange}
+          </span>
         </div>
       </div>
 
@@ -145,8 +147,8 @@ export function CustomTaskForm() {
             type="number"
             value={attributePoints}
             onChange={(e) => {
-              const val = parseInt(e.target.value);
-              if (!isNaN(val) && val >= 1 && val <= 10) {
+              const val = Number.parseInt(e.target.value);
+              if (!Number.isNaN(val) && val >= 1 && val <= 10) {
                 setAttributePoints(val);
               }
             }}
@@ -165,7 +167,9 @@ export function CustomTaskForm() {
           >
             <Plus className="h-4 w-4" />
           </Button>
-          <span className="text-sm text-white/60">{COPY.customTasks.attributePointsRange}</span>
+          <span className="text-sm text-white/60">
+            {COPY.customTasks.attributePointsRange}
+          </span>
         </div>
       </div>
 
@@ -174,7 +178,9 @@ export function CustomTaskForm() {
         disabled={createTask.isPending || !title.trim()}
         className="w-full"
       >
-        {createTask.isPending ? COPY.customTasks.creating : COPY.customTasks.createButton}
+        {createTask.isPending
+          ? COPY.customTasks.creating
+          : COPY.customTasks.createButton}
       </Button>
     </form>
   );

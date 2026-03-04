@@ -10,6 +10,13 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface CheatItem {
+  'id' : string,
+  'creditCost' : bigint,
+  'name' : string,
+  'description' : string,
+  'dailyLimit' : bigint,
+}
 export type CooldownArray = Array<[string, Time]>;
 export interface CustomTaskWithStatus {
   'id' : string,
@@ -29,6 +36,18 @@ export interface DailyTaskRecommendation {
   'completed' : Array<DailyTask>,
 }
 export interface DamageResult { 'damage' : bigint, 'stats' : Array<bigint> }
+export interface DisciplineSkill {
+  'id' : string,
+  'requiredLevel' : bigint,
+  'name' : string,
+  'description' : string,
+}
+export interface LeaderboardEntry {
+  'principal' : Principal,
+  'nickname' : string,
+  'level' : bigint,
+  'avatarChoice' : string,
+}
 export interface Mission {
   'id' : string,
   'missionType' : { 'repeatable' : null } |
@@ -44,6 +63,11 @@ export interface Mob {
   'typeIndex' : bigint,
   'stats' : StatArray,
 }
+export type PurchaseResult = { 'dailyLimitReached' : null } |
+  { 'itemNotFound' : null } |
+  { 'success' : null } |
+  { 'unauthorized' : null } |
+  { 'insufficientCredits' : null };
 export type QuestionnaireAnswers = Array<string>;
 export interface Skill {
   'id' : string,
@@ -81,6 +105,7 @@ export interface UserProfile {
   'stats' : StatArray,
   'questionnaireAnswers' : QuestionnaireAnswers,
   'xpToNextLevel' : bigint,
+  'avatarChoice' : string,
   'unlockedSkills' : Array<string>,
   'lastMissionCompletionTime' : CooldownArray,
 }
@@ -102,8 +127,10 @@ export interface _SERVICE {
   'deleteAccount' : ActorMethod<[], undefined>,
   'deleteCustomTask' : ActorMethod<[string], undefined>,
   'deleteUserMission' : ActorMethod<[string], undefined>,
+  'getAllUserProfiles' : ActorMethod<[], Array<[Principal, UserProfile]>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCheatItems' : ActorMethod<[], Array<CheatItem>>,
   'getCustomTasks' : ActorMethod<[], Array<CustomTaskWithStatus>>,
   'getDailyTaskRecommendations' : ActorMethod<[], DailyTaskRecommendation>,
   'getDamage' : ActorMethod<[Array<bigint>], DamageResult>,
@@ -111,6 +138,8 @@ export interface _SERVICE {
     [[bigint, bigint], [bigint, bigint]],
     [string, string]
   >,
+  'getDisciplineSkill' : ActorMethod<[string], [] | [DisciplineSkill]>,
+  'getLeaderboard' : ActorMethod<[], Array<LeaderboardEntry>>,
   'getMission' : ActorMethod<[string], [] | [Mission]>,
   'getMobStats' : ActorMethod<[bigint, bigint, bigint], StatArray>,
   'getQuestionnaireAnswers' : ActorMethod<[], [] | [QuestionnaireAnswers]>,
@@ -118,6 +147,7 @@ export interface _SERVICE {
   'getStartingStats' : ActorMethod<[bigint, bigint, bigint], StatArray>,
   'getStatNames' : ActorMethod<[], StatNameArray>,
   'getStatValue' : ActorMethod<[StatArray, StatArray, bigint], [] | [bigint]>,
+  'getUserCheatPurchasesToday' : ActorMethod<[], Array<[string, bigint]>>,
   'getUserCustomTasks' : ActorMethod<[Principal], Array<CustomTaskWithStatus>>,
   'getUserMission' : ActorMethod<[string], [] | [UserMission]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
@@ -125,10 +155,12 @@ export interface _SERVICE {
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listAllMobTypes' : ActorMethod<[], Array<[bigint, string]>>,
   'listAllMobs' : ActorMethod<[], Array<Mob>>,
+  'listDisciplineSkills' : ActorMethod<[], Array<DisciplineSkill>>,
   'listMissions' : ActorMethod<[], Array<Mission>>,
   'listSkills' : ActorMethod<[], Array<Skill>>,
   'listUserMissions' : ActorMethod<[], Array<UserMission>>,
   'markDailyTaskCompleted' : ActorMethod<[string], undefined>,
+  'purchaseCheat' : ActorMethod<[string], PurchaseResult>,
   'rollDie' : ActorMethod<[bigint], bigint>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'submitQuestionnaireAnswers' : ActorMethod<[QuestionnaireAnswers], undefined>,

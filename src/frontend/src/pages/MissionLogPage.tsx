@@ -1,11 +1,22 @@
-import { useGetCallerUserProfile, useGetDailyTaskRecommendations } from '../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollText, Calendar, Award, Coins } from 'lucide-react';
-import { COPY } from '../content/copy';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Award, Calendar, Coins, ScrollText } from "lucide-react";
+import { COPY } from "../content/copy";
+import {
+  useGetCallerUserProfile,
+  useGetDailyTaskRecommendations,
+} from "../hooks/useQueries";
 
 export function MissionLogPage() {
-  const { data: userProfile, isLoading: profileLoading } = useGetCallerUserProfile();
-  const { data: dailyTasks, isLoading: tasksLoading } = useGetDailyTaskRecommendations();
+  const { data: userProfile, isLoading: profileLoading } =
+    useGetCallerUserProfile();
+  const { data: dailyTasks, isLoading: tasksLoading } =
+    useGetDailyTaskRecommendations();
 
   const isLoading = profileLoading || tasksLoading;
 
@@ -13,7 +24,9 @@ export function MissionLogPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{COPY.missionLog.title}</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">
+            {COPY.missionLog.title}
+          </h1>
           <p className="text-white/70">{COPY.missionLog.description}</p>
         </div>
         <div className="text-white/70">Loading mission log...</div>
@@ -22,17 +35,29 @@ export function MissionLogPage() {
   }
 
   const completedTasksCount = dailyTasks?.completed?.length || 0;
-  const totalTasksCount = (dailyTasks?.completed?.length || 0) + (dailyTasks?.incomplete?.length || 0);
+  const totalTasksCount =
+    (dailyTasks?.completed?.length || 0) +
+    (dailyTasks?.incomplete?.length || 0);
   const completedMissionsCount = userProfile?.completedMissions?.length || 0;
 
   // Calculate total XP and coins from completed daily tasks today
-  const todayXP = dailyTasks?.completed?.reduce((sum, task) => sum + Number(task.xpReward), 0) || 0;
-  const todayCoins = dailyTasks?.completed?.reduce((sum, task) => sum + Number(task.coinReward), 0) || 0;
+  const todayXP =
+    dailyTasks?.completed?.reduce(
+      (sum, task) => sum + Number(task.xpReward),
+      0,
+    ) || 0;
+  const todayCoins =
+    dailyTasks?.completed?.reduce(
+      (sum, task) => sum + Number(task.coinReward),
+      0,
+    ) || 0;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">{COPY.missionLog.title}</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          {COPY.missionLog.title}
+        </h1>
         <p className="text-white/70">{COPY.missionLog.description}</p>
       </div>
 
@@ -44,11 +69,11 @@ export function MissionLogPage() {
             Today's Progress
           </CardTitle>
           <CardDescription className="text-white/70">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </CardDescription>
         </CardHeader>
@@ -67,7 +92,9 @@ export function MissionLogPage() {
             <div className="bg-background/40 rounded-lg p-4 border border-primary/10">
               <div className="flex items-center gap-2 mb-2">
                 <ScrollText className="h-4 w-4 text-accent" />
-                <span className="text-sm text-white/70">Missions Completed</span>
+                <span className="text-sm text-white/70">
+                  Missions Completed
+                </span>
               </div>
               <div className="text-2xl font-bold text-white">
                 {completedMissionsCount}
@@ -79,19 +106,17 @@ export function MissionLogPage() {
                 <Award className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm text-white/70">XP Earned Today</span>
               </div>
-              <div className="text-2xl font-bold text-white">
-                {todayXP}
-              </div>
+              <div className="text-2xl font-bold text-white">{todayXP}</div>
             </div>
 
             <div className="bg-background/40 rounded-lg p-4 border border-primary/10">
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="h-4 w-4 text-amber-500" />
-                <span className="text-sm text-white/70">Coins Earned Today</span>
+                <span className="text-sm text-white/70">
+                  Coins Earned Today
+                </span>
               </div>
-              <div className="text-2xl font-bold text-white">
-                {todayCoins}
-              </div>
+              <div className="text-2xl font-bold text-white">{todayCoins}</div>
             </div>
           </div>
         </CardContent>

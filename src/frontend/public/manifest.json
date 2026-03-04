@@ -3,24 +3,37 @@
   "short_name": "CRYONEX",
   "description": "Gamified productivity app - Level up your life with real-world achievements",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#00D9FF",
   "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["productivity", "lifestyle", "games"],
   "icons": [
     {
-      "src": "/assets/generated/cryonex-icon-192.dim_192x192.png",
+      "src": "/assets/generated/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "/assets/generated/cryonex-icon-512.dim_512x512.png",
+      "src": "/assets/generated/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/generated/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/generated/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ],
-  "categories": ["productivity", "lifestyle", "games"],
-  "screenshots": []
+  ]
 }

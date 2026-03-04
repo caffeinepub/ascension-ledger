@@ -1,17 +1,17 @@
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import List "mo:core/List";
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
+import Time "mo:core/Time";
 import Array "mo:core/Array";
 import Int "mo:core/Int";
-import Time "mo:core/Time";
-import Order "mo:core/Order";
-import Principal "mo:core/Principal";
-import List "mo:core/List";
-import Timer "mo:core/Timer";
 import Iter "mo:core/Iter";
+
+
 
 actor {
   public type StatArray = [Int];
@@ -111,9 +111,17 @@ actor {
     requirements : SkillRequirements;
   };
 
+  public type DisciplineSkill = {
+    id : Text;
+    name : Text;
+    description : Text;
+    requiredLevel : Nat;
+  };
+
   public type CooldownArray = [(Text, Time.Time)];
   public type UserProfile = {
     nickname : Text;
+    avatarChoice : Text;
     level : Nat;
     xp : Nat;
     xpToNextLevel : Nat;
@@ -131,6 +139,7 @@ actor {
 
   public type UserProfileInternal = {
     nickname : Text;
+    avatarChoice : Text;
     level : Nat;
     xp : Nat;
     xpToNextLevel : Nat;
@@ -146,10 +155,106 @@ actor {
     customTaskStatus : Map.Map<Text, Bool>;
   };
 
+  public type LeaderboardEntry = {
+    principal : Principal;
+    nickname : Text;
+    avatarChoice : Text;
+    level : Nat;
+  };
+
   type DailyTaskEntry = {
     task : DailyTask;
     completionTime : Time.Time;
   };
+
+  type CheatItem = {
+    id : Text;
+    name : Text;
+    description : Text;
+    creditCost : Nat;
+    dailyLimit : Nat;
+  };
+
+  type CheatPurchase = {
+    userId : Principal;
+    cheatId : Text;
+    purchaseDate : Time.Time;
+    dailyCount : Nat;
+  };
+
+  type PurchaseResult = {
+    #success;
+    #insufficientCredits;
+    #dailyLimitReached;
+    #itemNotFound;
+    #unauthorized;
+  };
+
+  let cheatItems = [
+    {
+      id = "doomscrolling";
+      name = "30 Min Doomscrolling/Gaming";
+      description = "Indulge in 30 minutes of guilty pleasure doomscrolling or gaming to reset your brain after sustained focus. Use in moderation!";
+      creditCost = 50;
+      dailyLimit = 2;
+    },
+    {
+      id = "junk_food";
+      name = "Junk Food Treat";
+      description = "Enjoy a small portion of your favorite junk food as a reward for healthy eating overall. Use this sparingly!";
+      creditCost = 20;
+      dailyLimit = 2;
+    },
+    {
+      id = "power_nap";
+      name = "20 Min Power Nap";
+      description = "Take a 20 minute power nap to recharge your energy levels and boost productivity. Avoid using within 4 hours of sleep.";
+      creditCost = 10;
+      dailyLimit = 2;
+    },
+    {
+      id = "show_episode";
+      name = "One Episode of a Show";
+      description = "Watch a single episode (30-60 min) of your favorite TV show guilt-free. Don't binge - stick to just one!";
+      creditCost = 30;
+      dailyLimit = 2;
+    },
+    {
+      id = "youtube";
+      name = "40 Min YouTube Guilt-Free";
+      description = "Spend up to 40 minutes watching YouTube for entertainment or learning purposes. Avoid endless scrolling.";
+      creditCost = 10;
+      dailyLimit = 2;
+    },
+    {
+      id = "movie_night";
+      name = "Full Movie Night";
+      description = "Enjoy a complete movie night experience at home, including snacks and drinks. Make it a social event if possible.";
+      creditCost = 40;
+      dailyLimit = 1;
+    },
+    {
+      id = "skip_task";
+      name = "Skip-One-Low-Priority-Task Pass";
+      description = "Skip a single, non-critical task without feeling guilty. Limit to one use per task.";
+      creditCost = 30;
+      dailyLimit = 2;
+    },
+    {
+      id = "cozy_reset";
+      name = "Cozy Reset Break";
+      description = "Take a 1-2 hour break to do something relaxing and comforting, like reading, listening to music, or taking a bath.";
+      creditCost = 80;
+      dailyLimit = 1;
+    },
+    {
+      id = "full_rest";
+      name = "Full Rest Evening";
+      description = "Take an entire evening (4-6 hours) of guilt-free rest with zero study or work obligations. Fully recharge for the next day.";
+      creditCost = 100;
+      dailyLimit = 1;
+    },
+  ];
 
   let mobTypes = [
     ["Aquarius", "Capricornius", "Cancerus", "Sagittarius", "Leo"],
@@ -205,6 +310,7 @@ actor {
   let missions = Map.empty<Text, Mission>();
   let userMissions = Map.empty<Text, UserMission>();
   let skills : Map.Map<Text, Skill> = Map.empty();
+  let disciplineSkills : Map.Map<Text, DisciplineSkill> = Map.empty();
 
   let dailyTasks = Map.empty<Text, DailyTask>();
   var customTasks = Map.empty<Principal, Map.Map<Text, CustomTask>>();
@@ -435,6 +541,42 @@ actor {
         minStats = [(6, 12)];
       };
     });
+
+    // Discipline Skill Entries (Added in Batches)
+    disciplineSkills.add("core_discipline_skills", {
+      id = "core_discipline_skills";
+      name = "Core Discipline Skills";
+      description = "Foundation of all productive habits; mastering basic self-control and daily routine adherence.";
+      requiredLevel = 1;
+    });
+
+    disciplineSkills.add("discipline_master", {
+      id = "discipline_master";
+      name = "Discipline Master";
+      description = "Advanced command over personal discipline; consistently choosing long-term gains over short-term comfort.";
+      requiredLevel = 10;
+    });
+
+    disciplineSkills.add("consistency_king_queen", {
+      id = "consistency_king_queen";
+      name = "Consistency King / Queen";
+      description = "Executing tasks with unwavering regularity; showing up every day regardless of motivation.";
+      requiredLevel = 8;
+    });
+
+    disciplineSkills.add("iron_will", {
+      id = "iron_will";
+      name = "Iron Will";
+      description = "Unyielding mental resolve; pushing through resistance, fatigue, and adversity without compromise.";
+      requiredLevel = 12;
+    });
+
+    disciplineSkills.add("focus_architect", {
+      id = "focus_architect";
+      name = "Focus Architect";
+      description = "Designing environments and routines that maximise deep concentration and eliminate distraction.";
+      requiredLevel = 9;
+    });
   };
 
   initializeMissionsAndSkills();
@@ -442,9 +584,7 @@ actor {
   func calculateXpToNextLevel(level : Nat) : Nat {
     let baseXp = 100;
     var xpNeeded = baseXp * level;
-    if (level > 10) {
-      xpNeeded *= level;
-    };
+    if (level > 10) { xpNeeded *= level };
     xpNeeded;
   };
 
@@ -452,6 +592,7 @@ actor {
     let startingStats = Array.tabulate<Int>(13, func(_) { 10 });
     {
       nickname;
+      avatarChoice = "";
       level = 1;
       xp = 0;
       xpToNextLevel = calculateXpToNextLevel(1);
@@ -472,6 +613,7 @@ actor {
     let cooldownArray = internal.lastMissionCompletionTime.toArray();
     {
       nickname = internal.nickname;
+      avatarChoice = internal.avatarChoice;
       level = internal.level;
       xp = internal.xp;
       xpToNextLevel = internal.xpToNextLevel;
@@ -647,6 +789,7 @@ actor {
 
         let updatedProfile : UserProfileInternal = {
           nickname = profile.nickname;
+          avatarChoice = profile.avatarChoice;
           level = updatedLevel;
           xp = updatedXp;
           xpToNextLevel = xpToNext;
@@ -731,7 +874,7 @@ actor {
       }
     );
     {
-      completed = allTasks.filter<DailyTask>(func(task) { 
+      completed = allTasks.filter<DailyTask>(func(task) {
         switch (completedToday.find<Text>(func(id) { id == task.id })) {
           case (null) { false };
           case (?_) { true };
@@ -789,8 +932,8 @@ actor {
     };
     let updatedCompletedTasks = if (not alreadyInList) {
       let completedTasks = profile.completedDailyTasks;
-      Array.tabulate(completedTasks.size() + 1, func(i) { 
-        if (i < completedTasks.size()) { completedTasks[i] } else { taskId } 
+      Array.tabulate(completedTasks.size() + 1, func(i) {
+        if (i < completedTasks.size()) { completedTasks[i] } else { taskId }
       });
     } else {
       profile.completedDailyTasks;
@@ -811,6 +954,7 @@ actor {
 
     let updatedProfile : UserProfileInternal = {
       nickname = profile.nickname;
+      avatarChoice = profile.avatarChoice;
       level = updatedLevel;
       xp = updatedXp;
       xpToNextLevel = xpToNext;
@@ -822,7 +966,7 @@ actor {
       lastMissionCompletionTime = updatedCompletionTimes;
       unlockedSkills = profile.unlockedSkills;
       questionnaireAnswers = profile.questionnaireAnswers;
-      completedDailyTasks = updatedCompletedTasks;
+      completedDailyTasks = profile.completedDailyTasks;
       customTaskStatus = profile.customTaskStatus;
     };
 
@@ -889,6 +1033,7 @@ actor {
     };
     let internalProfile : UserProfileInternal = {
       nickname = profile.nickname;
+      avatarChoice = profile.avatarChoice;
       level = profile.level;
       xp = profile.xp;
       xpToNextLevel = profile.xpToNextLevel;
@@ -944,6 +1089,7 @@ actor {
 
         let updatedProfile : UserProfileInternal = {
           nickname = profile.nickname;
+          avatarChoice = profile.avatarChoice;
           level = newLevel;
           xp = newXp;
           xpToNextLevel = xpToNext;
@@ -1076,6 +1222,7 @@ actor {
 
             let updatedProfile : UserProfileInternal = {
               nickname = profile.nickname;
+              avatarChoice = profile.avatarChoice;
               level = newLevel;
               xp = newXp;
               xpToNextLevel = xpToNext;
@@ -1111,6 +1258,20 @@ actor {
       Runtime.trap("Unauthorized: Only users can view skills");
     };
     skills.get(skillId);
+  };
+
+  public query ({ caller }) func listDisciplineSkills() : async [DisciplineSkill] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can list discipline skills");
+    };
+    disciplineSkills.values().toArray();
+  };
+
+  public query ({ caller }) func getDisciplineSkill(skillId : Text) : async ?DisciplineSkill {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view discipline skill details");
+    };
+    disciplineSkills.get(skillId);
   };
 
   func canUnlockSkill(profile : UserProfileInternal, skill : Skill) : Bool {
@@ -1152,6 +1313,7 @@ actor {
 
             let updatedProfile : UserProfileInternal = {
               nickname = profile.nickname;
+              avatarChoice = profile.avatarChoice;
               level = profile.level;
               xp = profile.xp;
               xpToNextLevel = profile.xpToNextLevel;
@@ -1220,7 +1382,7 @@ actor {
   };
 
   module Mob {
-    public func compareByName(mob1 : Mob, mob2 : Mob) : Order.Order {
+    public func compareByName(mob1 : Mob, mob2 : Mob) : { #less; #equal; #greater } {
       Text.compare(mob1.name, mob2.name);
     };
   };
@@ -1317,7 +1479,7 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can create missions");
     };
-    
+
     if (title.isEmpty() or description.isEmpty()) {
       Runtime.trap("Mission title and description cannot be empty");
     };
@@ -1383,8 +1545,8 @@ actor {
             };
             let newCompletedMissions = if (not alreadyCompleted) {
               let completedMissions = profile.completedMissions;
-              Array.tabulate(completedMissions.size() + 1, func(i) { 
-                if (i < completedMissions.size()) { completedMissions[i] } else { missionId } 
+              Array.tabulate(completedMissions.size() + 1, func(i) {
+                if (i < completedMissions.size()) { completedMissions[i] } else { missionId }
               });
             } else {
               profile.completedMissions;
@@ -1404,6 +1566,7 @@ actor {
 
             let updatedProfile : UserProfileInternal = {
               nickname = profile.nickname;
+              avatarChoice = profile.avatarChoice;
               level = newLevel;
               xp = newXp;
               xpToNextLevel = xpToNext;
@@ -1443,5 +1606,134 @@ actor {
     };
   };
 
+  // Returns leaderboard data for all registered users.
+  // This is public information accessible to everyone including guests,
+  // as it only exposes the principal, nickname, avatar choice, and level.
+  public query func getLeaderboard() : async [LeaderboardEntry] {
+    profiles.toArray().map(func((principal, profile)) {
+      {
+        principal;
+        nickname = profile.nickname;
+        avatarChoice = profile.avatarChoice;
+        level = profile.level;
+      };
+    });
+  };
+
+  public query ({ caller }) func getAllUserProfiles() : async [(Principal, UserProfile)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can view all user profiles");
+    };
+    profiles.toArray().map(func((principal, profile)) { (principal, toUserProfile(profile)) });
+  };
+
+  // BEGIN CHEAT STORE IMPLEMENTATION
+
+  let purchaseHistory = Map.empty<Principal, Map.Map<Text, CheatPurchase>>();
+
+  public query ({ caller }) func getCheatItems() : async [CheatItem] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view cheat items");
+    };
+    cheatItems;
+  };
+
+  public shared ({ caller }) func purchaseCheat(cheatId : Text) : async PurchaseResult {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      return #unauthorized;
+    };
+
+    let cheatItem = switch (cheatItems.find(func(item) { item.id == cheatId })) {
+      case (null) { return #itemNotFound };
+      case (?item) { item };
+    };
+
+    let userProfile = switch (profiles.get(caller)) {
+      case (null) { return #unauthorized };
+      case (?profile) { profile };
+    };
+
+    if (userProfile.coins < cheatItem.creditCost) {
+      return #insufficientCredits;
+    };
+
+    let today = Time.now();
+    let midnightTime = today / MIDNIGHT_INTERVAL_NANOS * MIDNIGHT_INTERVAL_NANOS;
+
+    let dailyPurchases = switch (purchaseHistory.get(caller)) {
+      case (null) { 0 };
+      case (?userPurchases) {
+        switch (userPurchases.get(cheatId)) {
+          case (null) { 0 };
+          case (?purchase) {
+            if (isSameDay(purchase.purchaseDate, today)) {
+              purchase.dailyCount;
+            } else { 0 };
+          };
+        };
+      };
+    };
+
+    if (dailyPurchases >= cheatItem.dailyLimit) { return #dailyLimitReached };
+
+    let updatedPurchases = switch (purchaseHistory.get(caller)) {
+      case (null) {
+        let newPurchases = Map.empty<Text, CheatPurchase>();
+        purchaseHistory.add(caller, newPurchases);
+        newPurchases;
+      };
+      case (?userPurchases) { userPurchases };
+    };
+
+    let newPurchase : CheatPurchase = {
+      userId = caller;
+      cheatId;
+      purchaseDate = midnightTime;
+      dailyCount = dailyPurchases + 1;
+    };
+
+    updatedPurchases.add(cheatId, newPurchase);
+
+    let updatedProfile : UserProfileInternal = {
+      nickname = userProfile.nickname;
+      avatarChoice = userProfile.avatarChoice;
+      level = userProfile.level;
+      xp = userProfile.xp;
+      xpToNextLevel = userProfile.xpToNextLevel;
+      stats = userProfile.stats;
+      unspentStatPoints = userProfile.unspentStatPoints;
+      inventory = userProfile.inventory;
+      coins = userProfile.coins - cheatItem.creditCost;
+      completedMissions = userProfile.completedMissions;
+      lastMissionCompletionTime = userProfile.lastMissionCompletionTime;
+      unlockedSkills = userProfile.unlockedSkills;
+      questionnaireAnswers = userProfile.questionnaireAnswers;
+      completedDailyTasks = userProfile.completedDailyTasks;
+      customTaskStatus = userProfile.customTaskStatus;
+    };
+
+    profiles.add(caller, updatedProfile);
+    #success;
+  };
+
+  public query ({ caller }) func getUserCheatPurchasesToday() : async [(Text, Nat)] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view cheat purchases");
+    };
+
+    let today = Time.now();
+    let purchases = switch (purchaseHistory.get(caller)) {
+      case (null) { [] };
+      case (?userPurchases) {
+        userPurchases.toArray().filter(
+          func((cheatId, purchase)) { isSameDay(purchase.purchaseDate, today) }
+        ).map(
+          func((cheatId, purchase)) { (cheatId, purchase.dailyCount) }
+        );
+      };
+    };
+
+    purchases;
+  };
 };
 

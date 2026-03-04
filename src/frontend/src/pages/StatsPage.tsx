@@ -1,31 +1,39 @@
-import { useState } from 'react';
-import { useGetCallerUserProfile, useAllocateStats } from '../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Plus, Minus } from 'lucide-react';
-import { COPY } from '../content/copy';
-import { StatsRadarChart } from '../components/stats/StatsRadarChart';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Minus, Plus } from "lucide-react";
+import { useState } from "react";
+import { StatsRadarChart } from "../components/stats/StatsRadarChart";
+import { COPY } from "../content/copy";
+import { useAllocateStats, useGetCallerUserProfile } from "../hooks/useQueries";
 
 const STAT_NAMES = [
-  'Academics',
-  'Creativity',
-  'Fitness',
-  'Health',
-  'Life Skills',
-  'Mental Health',
-  'Productivity',
-  'Relationship Building',
-  'Self Awareness',
-  'Self Care',
-  'Social Awareness',
-  'Wealth',
-  'Work',
+  "Academics",
+  "Creativity",
+  "Fitness",
+  "Health",
+  "Life Skills",
+  "Mental Health",
+  "Productivity",
+  "Relationship Building",
+  "Self Awareness",
+  "Self Care",
+  "Social Awareness",
+  "Wealth",
+  "Work",
 ];
 
 export function StatsPage() {
   const { data: profile } = useGetCallerUserProfile();
   const allocateStats = useAllocateStats();
-  const [pendingAllocations, setPendingAllocations] = useState<Record<number, number>>({});
+  const [pendingAllocations, setPendingAllocations] = useState<
+    Record<number, number>
+  >({});
 
   const getTotalPendingPoints = (): number => {
     return Object.values(pendingAllocations).reduce((sum, val) => sum + val, 0);
@@ -59,10 +67,9 @@ export function StatsPage() {
   };
 
   const handleAllocate = async () => {
-    const allocations: [bigint, bigint][] = Object.entries(pendingAllocations).map(([index, points]) => [
-      BigInt(index),
-      BigInt(points),
-    ]);
+    const allocations: [bigint, bigint][] = Object.entries(
+      pendingAllocations,
+    ).map(([index, points]) => [BigInt(index), BigInt(points)]);
 
     await allocateStats.mutateAsync(allocations);
     setPendingAllocations({});
@@ -94,17 +101,34 @@ export function StatsPage() {
         <p className="mt-2 text-white/70">{COPY.stats.subtitle}</p>
       </div>
 
-      <Card className="border-primary/20" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
+      <Card
+        className="border-primary/20"
+        style={{
+          background: "rgba(0, 0, 0, 0.8)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
         <CardHeader>
-          <CardTitle className="text-white/95">{COPY.stats.availablePoints}</CardTitle>
+          <CardTitle className="text-white/95">
+            {COPY.stats.availablePoints}
+          </CardTitle>
           <CardDescription className="text-white/75">
-            {COPY.stats.pointsRemaining}: <span className="text-2xl font-bold text-primary">{getAvailablePoints()}</span>
+            {COPY.stats.pointsRemaining}:{" "}
+            <span className="text-2xl font-bold text-primary">
+              {getAvailablePoints()}
+            </span>
           </CardDescription>
         </CardHeader>
       </Card>
 
       {/* Stats Radar Chart */}
-      <Card className="border-primary/20" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(12px)' }}>
+      <Card
+        className="border-primary/20"
+        style={{
+          background: "rgba(0, 0, 0, 0.8)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
         <CardHeader>
           <CardTitle className="text-white/95">Attribute Overview</CardTitle>
           <CardDescription className="text-white/75">
@@ -123,9 +147,18 @@ export function StatsPage() {
           const newValue = currentValue + pendingValue;
 
           return (
-            <Card key={index} className="border-border/30" style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}>
+            <Card
+              key={statName}
+              className="border-border/30"
+              style={{
+                background: "rgba(0, 0, 0, 0.75)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg text-white/95">{statName}</CardTitle>
+                <CardTitle className="text-lg text-white/95">
+                  {statName}
+                </CardTitle>
                 <CardDescription className="text-white/75">
                   {COPY.stats.current}: {currentValue}
                   {pendingValue > 0 && (
@@ -147,7 +180,9 @@ export function StatsPage() {
                     <Minus className="h-4 w-4" />
                   </Button>
                   <div className="flex-1 text-center">
-                    <div className="text-2xl font-bold text-white/95">{newValue}</div>
+                    <div className="text-2xl font-bold text-white/95">
+                      {newValue}
+                    </div>
                   </div>
                   <Button
                     variant="outline"
@@ -166,13 +201,30 @@ export function StatsPage() {
       </div>
 
       {getTotalPendingPoints() > 0 && (
-        <Card className="border-primary/50" style={{ background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(12px)' }}>
+        <Card
+          className="border-primary/50"
+          style={{
+            background: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(12px)",
+          }}
+        >
           <CardContent className="pt-6">
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button onClick={handleAllocate} disabled={allocateStats.isPending} className="flex-1">
-                {allocateStats.isPending ? COPY.stats.allocating : COPY.stats.confirmAllocation}
+              <Button
+                onClick={handleAllocate}
+                disabled={allocateStats.isPending}
+                className="flex-1"
+              >
+                {allocateStats.isPending
+                  ? COPY.stats.allocating
+                  : COPY.stats.confirmAllocation}
               </Button>
-              <Button onClick={handleReset} variant="outline" disabled={allocateStats.isPending} className="flex-1">
+              <Button
+                onClick={handleReset}
+                variant="outline"
+                disabled={allocateStats.isPending}
+                className="flex-1"
+              >
                 {COPY.stats.reset}
               </Button>
             </div>

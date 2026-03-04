@@ -7,8 +7,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { AlertTriangle } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { AlertTriangle } from "lucide-react";
 
 interface AccountDeletionDialogProps {
   open: boolean;
@@ -16,7 +16,11 @@ interface AccountDeletionDialogProps {
   onConfirm: () => void;
 }
 
-export function AccountDeletionDialog({ open, onOpenChange, onConfirm }: AccountDeletionDialogProps) {
+export function AccountDeletionDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: AccountDeletionDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="bg-black/90 border-destructive/50">
@@ -27,7 +31,8 @@ export function AccountDeletionDialog({ open, onOpenChange, onConfirm }: Account
           </AlertDialogTitle>
           <AlertDialogDescription className="text-white/75 space-y-3">
             <p className="font-semibold text-white/90">
-              This action cannot be undone. This will permanently delete your account and remove all your data.
+              This action cannot be undone. This will permanently delete your
+              account and remove all your data.
             </p>
             <p>All of the following will be permanently deleted:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">

@@ -1,16 +1,22 @@
-import { useState } from 'react';
-import { useCreateUserMission } from '../../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Plus, Minus } from 'lucide-react';
-import { COPY } from '../../content/copy';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Minus, Plus } from "lucide-react";
+import { useState } from "react";
+import { COPY } from "../../content/copy";
+import { useCreateUserMission } from "../../hooks/useQueries";
 
 export function CustomMissionForm() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [xpReward, setXpReward] = useState(50);
   const [coinReward, setCoinReward] = useState(25);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -27,7 +33,8 @@ export function CustomMissionForm() {
     }
 
     if (!description.trim()) {
-      newErrors.description = COPY.customMissions.validation.descriptionRequired;
+      newErrors.description =
+        COPY.customMissions.validation.descriptionRequired;
     } else if (description.length > 500) {
       newErrors.description = COPY.customMissions.validation.descriptionTooLong;
     }
@@ -60,21 +67,28 @@ export function CustomMissionForm() {
       });
 
       // Reset form on success
-      setTitle('');
-      setDescription('');
+      setTitle("");
+      setDescription("");
       setXpReward(50);
       setCoinReward(25);
       setErrors({});
     } catch (error) {
-      console.error('Failed to create mission:', error);
+      console.error("Failed to create mission:", error);
     }
   };
 
   return (
-    <Card className="border-primary/20" style={{ background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(8px)' }}>
+    <Card
+      className="border-primary/20"
+      style={{ background: "rgba(0, 0, 0, 0.5)", backdropFilter: "blur(8px)" }}
+    >
       <CardHeader>
-        <CardTitle className="text-accent">{COPY.customMissions.formTitle}</CardTitle>
-        <CardDescription className="text-white/75">{COPY.customMissions.formDescription}</CardDescription>
+        <CardTitle className="text-accent">
+          {COPY.customMissions.formTitle}
+        </CardTitle>
+        <CardDescription className="text-white/75">
+          {COPY.customMissions.formDescription}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +105,9 @@ export function CustomMissionForm() {
               maxLength={100}
               className="bg-card/50 border-primary/20 text-white placeholder:text-white/40"
             />
-            {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+            {errors.title && (
+              <p className="text-sm text-destructive">{errors.title}</p>
+            )}
           </div>
 
           {/* Description */}
@@ -108,7 +124,9 @@ export function CustomMissionForm() {
               rows={3}
               className="bg-card/50 border-primary/20 text-white placeholder:text-white/40 resize-none"
             />
-            {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
+            {errors.description && (
+              <p className="text-sm text-destructive">{errors.description}</p>
+            )}
           </div>
 
           {/* XP Reward */}
@@ -131,7 +149,14 @@ export function CustomMissionForm() {
                 id="xp-reward"
                 type="number"
                 value={xpReward}
-                onChange={(e) => setXpReward(Math.max(10, Math.min(500, parseInt(e.target.value) || 10)))}
+                onChange={(e) =>
+                  setXpReward(
+                    Math.max(
+                      10,
+                      Math.min(500, Number.parseInt(e.target.value) || 10),
+                    ),
+                  )
+                }
                 min={10}
                 max={500}
                 className="bg-card/50 border-primary/20 text-white text-center"
@@ -147,7 +172,9 @@ export function CustomMissionForm() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            {errors.xpReward && <p className="text-sm text-destructive">{errors.xpReward}</p>}
+            {errors.xpReward && (
+              <p className="text-sm text-destructive">{errors.xpReward}</p>
+            )}
           </div>
 
           {/* Coin Reward */}
@@ -170,7 +197,14 @@ export function CustomMissionForm() {
                 id="coin-reward"
                 type="number"
                 value={coinReward}
-                onChange={(e) => setCoinReward(Math.max(10, Math.min(500, parseInt(e.target.value) || 10)))}
+                onChange={(e) =>
+                  setCoinReward(
+                    Math.max(
+                      10,
+                      Math.min(500, Number.parseInt(e.target.value) || 10),
+                    ),
+                  )
+                }
                 min={10}
                 max={500}
                 className="bg-card/50 border-primary/20 text-white text-center"
@@ -186,7 +220,9 @@ export function CustomMissionForm() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            {errors.coinReward && <p className="text-sm text-destructive">{errors.coinReward}</p>}
+            {errors.coinReward && (
+              <p className="text-sm text-destructive">{errors.coinReward}</p>
+            )}
           </div>
 
           {/* Submit Button */}
@@ -195,7 +231,9 @@ export function CustomMissionForm() {
             className="w-full"
             disabled={createMission.isPending}
           >
-            {createMission.isPending ? COPY.customMissions.creating : COPY.customMissions.createButton}
+            {createMission.isPending
+              ? COPY.customMissions.creating
+              : COPY.customMissions.createButton}
           </Button>
         </form>
       </CardContent>
