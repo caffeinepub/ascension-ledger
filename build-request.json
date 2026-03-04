@@ -1,57 +1,147 @@
 {
   "kind": "build_request",
-  "title": "Add next small batch of skills to the skill matrix",
+  "title": "Full PWA Setup with Manifest, Service Worker, and Icon Assets",
+  "projectName": "CRYONEX",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
-      "target": "backend",
+      "text": "Ensure frontend/index.html includes a complete and valid PWA manifest link, all required Apple PWA meta tags (apple-mobile-web-app-capable, apple-mobile-web-app-status-bar-style, apple-mobile-web-app-title), a theme-color meta tag, and viewport meta tag. Confirm the manifest.json path is correctly referenced.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-5"
         ],
         "quotes": [
-          "Smaller sets of skills"
+          "Can u pls make it a PWA that works completely without any problem"
         ]
       },
       "acceptanceCriteria": [
-        "Up to 5 new discipline skills are added to the backend skill matrix without causing a build failure",
-        "Each new skill has all required fields populated correctly",
-        "Existing skills and game state are preserved"
+        "index.html links to /manifest.json via <link rel='manifest'>",
+        "Apple PWA meta tags are present and correctly set",
+        "theme-color meta tag is present matching the app's theme color",
+        "viewport meta tag is present with width=device-width, initial-scale=1"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+      "text": "Create a complete frontend/public/manifest.json with all required PWA fields: name, short_name, description, start_url, display (standalone), orientation, background_color, theme_color, icons array covering 72x72, 96x96, 128x128, 152x152, 192x192, 384x384, and 512x512 PNG sizes, categories, and screenshots if possible.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-5"
         ],
         "quotes": [
-          "Smaller sets of skills"
+          "Can u pls make it a PWA that works completely without any problem"
         ]
       },
       "acceptanceCriteria": [
-        "Newly added skills appear in the correct category group on the Skills page",
-        "Unlock requirements and status are displayed correctly for new skills",
-        "Existing skill display is not broken"
+        "manifest.json is valid JSON and passes PWA manifest validation",
+        "All icon sizes from 72px to 512px are referenced in the manifest",
+        "display is set to 'standalone'",
+        "start_url, name, short_name, theme_color, and background_color are all present"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Generate and place all required PWA icon PNG files in frontend/public/icons/ for sizes: 72x72, 96x96, 128x128, 152x152, 192x192, 384x384, and 512x512. Also generate a 180x180 apple-touch-icon.png placed at frontend/public/apple-touch-icon.png. Reference these icons correctly in manifest.json and index.html.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Can u pls make it a PWA that works completely without any problem"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All icon files exist at the specified paths",
+        "manifest.json icons array references the correct paths and sizes",
+        "index.html includes <link rel='apple-touch-icon' href='/apple-touch-icon.png'>",
+        "Icons are visually consistent with the CRYONEX sci-fi theme"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Rewrite frontend/public/service-worker.js to implement a robust, production-ready service worker with: correct cache versioning, pre-caching of all static assets listed in a manifest, a cache-first strategy for static assets, a network-first strategy for API calls, proper install and activate lifecycle events that clean up old caches, and graceful offline fallback to the cached index.html for navigation requests. Ensure the draft environment bypass logic (skipping caching on draft.caffeine.xyz) is preserved.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Can u pls make it a PWA that works completely without any problem"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Service worker installs and activates without errors",
+        "Static assets are pre-cached on install",
+        "Old caches are deleted on activate",
+        "Navigation requests fall back to cached index.html when offline",
+        "Draft environment bypasses all caching",
+        "No console errors related to the service worker on a fresh load"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Ensure the service worker is registered correctly in frontend/index.html or the app entry point. The registration should only run in production (not on draft), handle registration errors gracefully, and log success/failure to the console. Use navigator.serviceWorker.register('/service-worker.js') with the correct scope.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Can u pls make it a PWA that works completely without any problem"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Service worker registration code is present and runs after page load",
+        "Registration is skipped on draft.caffeine.xyz environment",
+        "No uncaught errors from failed registration",
+        "Browser DevTools Application tab shows the service worker as active"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Update frontend/.ic-assets.json to ensure service-worker.js is served with Cache-Control: no-cache, max-age=0 so browsers always fetch the latest version, while all other static assets can use longer cache durations appropriate for a PWA.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Can u pls make it a PWA that works completely without any problem"
+        ]
+      },
+      "acceptanceCriteria": [
+        "service-worker.js has Cache-Control: no-cache in .ic-assets.json",
+        "manifest.json has appropriate cache headers",
+        "Icon files have appropriate long-lived cache headers"
       ]
     }
   ],
   "constraints": [
-    "Add no more than 5 skills in this batch to avoid build failures",
-    "Do not modify frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts, frontend/src/main.tsx, or any files under frontend/src/components/ui",
-    "Preserve all existing skills and player state"
+    "Do not modify any files listed in frontend.immutablePaths",
+    "Preserve the draft environment cache bypass logic in the service worker and utilities",
+    "All icon files must be placed in frontend/public/ or subdirectories thereof"
   ],
   "nonGoals": [
-    "Adding all 39 skills in a single batch",
-    "Modifying combat or mission logic",
-    "Changing the skill unlock mechanism or UI layout"
+    "Adding push notification support",
+    "Background sync functionality",
+    "Any changes to backend Motoko logic",
+    "Changing the app's visual design or color scheme"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-72.dim_72x72.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-96.dim_96x96.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-128.dim_128x128.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-152.dim_152x152.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-192.dim_192x192.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-384.dim_384x384.png)",
+      "CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-512.dim_512x512.png)",
+      "CRYONEX sci-fi themed Apple touch icon — dark background with glowing cyan/teal geometric emblem, rounded appearance (apple-touch-icon.dim_180x180.png)"
+    ],
     "edits": []
   }
 }

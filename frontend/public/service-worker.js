@@ -1,11 +1,14 @@
-const CACHE_VERSION = 'cryonex-v7'; // Incremented for offline-first strategy
+const CACHE_VERSION = 'cryonex-v8';
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 
+// All known cache names for this version
+const KNOWN_CACHES = [CACHE_NAME, RUNTIME_CACHE, API_CACHE];
+
 // Check if running on draft environment
 function isDraftEnvironment() {
-  return self.location.hostname === 'draft.caffeine.xyz' || 
+  return self.location.hostname === 'draft.caffeine.xyz' ||
          self.location.hostname.includes('draft.caffeine');
 }
 
@@ -13,74 +16,70 @@ function isDraftEnvironment() {
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/assets/generated/icon-192.dim_192x192.png',
+  '/assets/generated/icon-512.dim_512x512.png',
+  '/assets/generated/apple-touch-icon.dim_180x180.png',
+  '/assets/generated/cryonex-icon-192.dim_192x192.png',
+  '/assets/generated/cryonex-icon-512.dim_512x512.png'
 ];
 
-// Install event - cache static assets (skip on draft)
+// Install event - pre-cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing v7 with offline-first strategy...');
-  
   if (isDraftEnvironment()) {
-    console.log('[Service Worker] Draft environment detected, skipping cache installation');
     return self.skipWaiting();
   }
-  
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Pre-caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        // Use individual adds so one failure doesn't block the rest
+        return Promise.allSettled(
+          STATIC_ASSETS.map((url) =>
+            cache.add(url).catch((err) => {
+              console.warn('[SW] Failed to pre-cache:', url, err);
+            })
+          )
+        );
       })
-      .then(() => {
-        console.log('[Service Worker] Installation complete');
-        return self.skipWaiting();
-      })
+      .then(() => self.skipWaiting())
       .catch((error) => {
-        console.error('[Service Worker] Installation failed:', error);
+        console.error('[SW] Install failed:', error);
         return self.skipWaiting();
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and claim clients
 self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating v7...');
-  
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((cacheName) => {
+            .filter((name) => {
               // On draft, delete ALL caches
-              if (isDraftEnvironment()) {
-                return true;
-              }
-              // On production, delete all old versioned caches
-              return cacheName.startsWith('cryonex-') && 
-                     cacheName !== CACHE_NAME && 
-                     cacheName !== RUNTIME_CACHE &&
-                     cacheName !== API_CACHE;
+              if (isDraftEnvironment()) return true;
+              // On production, delete caches that belong to old versions
+              return name.startsWith('cryonex-') && !KNOWN_CACHES.includes(name);
             })
-            .map((cacheName) => {
-              console.log('[Service Worker] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
+            .map((name) => {
+              console.log('[SW] Deleting old cache:', name);
+              return caches.delete(name);
             })
         );
       })
-      .then(() => {
-        console.log('[Service Worker] Activation complete, old caches cleared');
-        return self.clients.claim();
-      })
+      .then(() => self.clients.claim())
   );
 });
 
-// Helper: is this an API / ICP canister request?
+// Helper: is this an ICP canister / API request?
 function isApiRequest(url) {
-  return url.pathname.includes('/api/') || 
-         url.hostname.includes('.ic0.app') || 
+  return url.pathname.startsWith('/api/') ||
+         url.hostname.includes('.ic0.app') ||
          url.hostname.includes('.icp0.io') ||
-         url.hostname.includes('.raw.ic0.app');
+         url.hostname.includes('.raw.ic0.app') ||
+         url.hostname.includes('icp-api.io');
 }
 
 // Helper: is this a static asset (JS, CSS, font, image)?
@@ -89,7 +88,7 @@ function isStaticAsset(request, url) {
          request.destination === 'style' ||
          request.destination === 'font' ||
          request.destination === 'image' ||
-         url.pathname.match(/\.(js|css|woff2?|ttf|otf|eot|png|jpg|jpeg|svg|webp|ico|gif)$/i);
+         /\.(js|css|woff2?|ttf|otf|eot|png|jpg|jpeg|svg|webp|ico|gif)$/i.test(url.pathname);
 }
 
 // Fetch event
@@ -97,24 +96,22 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
+  // Only handle GET requests
+  if (request.method !== 'GET') return;
 
-  // Skip cross-origin requests (except ICP API which we handle below)
-  if (url.origin !== location.origin && !isApiRequest(url)) {
-    return;
-  }
-
-  // On draft environment, always use network (bypass cache entirely)
+  // On draft: always bypass cache, go straight to network
   if (isDraftEnvironment()) {
     event.respondWith(
-      fetch(request).catch((error) => {
-        console.error('[Service Worker] Network request failed on draft:', error);
-        throw error;
+      fetch(request).catch((err) => {
+        console.warn('[SW] Draft network request failed:', err);
+        throw err;
       })
     );
+    return;
+  }
+
+  // Skip cross-origin requests that aren't ICP API calls
+  if (url.origin !== self.location.origin && !isApiRequest(url)) {
     return;
   }
 
@@ -123,97 +120,89 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.open(API_CACHE).then((cache) => {
         return cache.match(request).then((cachedResponse) => {
-          const fetchPromise = fetch(request)
+          const networkFetch = fetch(request)
             .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
+              if (networkResponse && networkResponse.ok) {
                 cache.put(request, networkResponse.clone());
               }
               return networkResponse;
             })
             .catch(() => {
-              // Network failed - return cached if available
-              return cachedResponse || Promise.reject(new Error('Offline and no cached API response'));
+              if (cachedResponse) return cachedResponse;
+              throw new Error('[SW] Offline and no cached API response');
             });
 
-          // Return cached immediately, update in background
-          return cachedResponse || fetchPromise;
+          // Return cached immediately if available, update in background
+          return cachedResponse || networkFetch;
         });
       })
     );
     return;
   }
 
-  // Cache-first strategy for static assets (JS, CSS, fonts, images)
+  // Cache-first for static assets (JS, CSS, fonts, images)
   if (isStaticAsset(request, url)) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         if (cachedResponse) {
-          // Serve from cache, update in background
+          // Serve from cache; revalidate in background
           fetch(request)
             .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
+              if (networkResponse && networkResponse.ok) {
                 const contentType = networkResponse.headers.get('content-type') || '';
-                // For images, validate content-type before caching
-                if (request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|gif)$/i)) {
-                  if (contentType.startsWith('image/')) {
-                    caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, networkResponse.clone()));
-                  }
-                } else {
-                  caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, networkResponse.clone()));
+                const isImage = request.destination === 'image' ||
+                                /\.(png|jpg|jpeg|svg|webp|ico|gif)$/i.test(url.pathname);
+                if (!isImage || contentType.startsWith('image/')) {
+                  caches.open(RUNTIME_CACHE).then((c) => c.put(request, networkResponse.clone()));
                 }
               }
             })
-            .catch(() => {/* background update failed, cached version still served */});
+            .catch(() => {/* background revalidation failed — cached version still served */});
           return cachedResponse;
         }
 
-        // Not in cache - fetch from network and cache it
+        // Not cached — fetch from network and cache it
         return fetch(request)
           .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
+            if (networkResponse && networkResponse.ok) {
               const contentType = networkResponse.headers.get('content-type') || '';
-              const responseClone = networkResponse.clone();
-              // Validate image content-type before caching
-              if (request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|svg|webp|ico|gif)$/i)) {
-                if (contentType.startsWith('image/')) {
-                  caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseClone));
-                }
-              } else {
-                caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseClone));
+              const isImage = request.destination === 'image' ||
+                              /\.(png|jpg|jpeg|svg|webp|ico|gif)$/i.test(url.pathname);
+              if (!isImage || contentType.startsWith('image/')) {
+                caches.open(RUNTIME_CACHE).then((c) => c.put(request, networkResponse.clone()));
               }
             }
             return networkResponse;
           })
           .catch(() => {
-            // Offline and not cached
-            console.warn('[Service Worker] Asset not available offline:', url.pathname);
-            throw new Error('Asset not available offline: ' + url.pathname);
+            console.warn('[SW] Asset unavailable offline:', url.pathname);
+            throw new Error('[SW] Asset not available offline: ' + url.pathname);
           });
       })
     );
     return;
   }
 
-  // Network-first with cache fallback for HTML / navigation requests
+  // Network-first with offline fallback for HTML / navigation requests
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, responseClone));
+        if (response && response.ok) {
+          caches.open(RUNTIME_CACHE).then((c) => c.put(request, response.clone()));
         }
         return response;
       })
       .catch(() => {
         return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          // For navigation requests, serve the app shell
+          if (cachedResponse) return cachedResponse;
+          // For navigation requests, serve the cached app shell
           if (request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match('/index.html').then((shell) => {
+              if (shell) return shell;
+              throw new Error('[SW] App shell not cached — cannot serve offline');
+            });
           }
-          throw new Error('No cached response available for: ' + url.pathname);
+          throw new Error('[SW] No cached response for: ' + url.pathname);
         });
       })
   );

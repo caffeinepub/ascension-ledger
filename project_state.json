@@ -5,26 +5,66 @@
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [],
-  "new_feature_requests": [
+  "imageRequirements": "## Required Images\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-72.dim_72x72.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-96.dim_96x96.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-128.dim_128x128.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-152.dim_152x152.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-192.dim_192x192.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-384.dim_384x384.png)\n- CRYONEX sci-fi themed app icon — dark background with glowing cyan/teal geometric emblem, suitable for PWA home screen (icon-512.dim_512x512.png)\n- CRYONEX sci-fi themed Apple touch icon — dark background with glowing cyan/teal geometric emblem, rounded appearance (apple-touch-icon.dim_180x180.png)",
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
+      "id": "feature-ensure-frontend-index-html-includes-a-complete-and-valid-pwa-manifest-link-all-required-apple-pwa-meta-tags-apple-mobile-web-app-capable-apple-mobile-web-app-status-bar-style-apple-mobile-web-app-title-a-theme-color-meta-tag-and-viewport-meta-tag-confirm-the-manifest-json-path-is-correctly-referenced",
+      "title": "Ensure frontend/index.html includes a complete and valid PWA manifest link, all required Apple PWA meta tags (apple-mobile-web-app-capable, apple-mobile-web-app-status-bar-style, apple-mobile-web-app-title), a theme-color meta tag, and viewport meta tag. Confirm the manifest.json path is correctly referenced.",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-2",
-      "summary": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+      "id": "feature-create-a-complete-frontend-public-manifest-json-with-all-required-pwa-fields-name-short-name-description-start-url-display-standalone-orientation-background-color-theme-color-icons-array-covering-72x72-96x96-128x128-152x152-192x192-384x384-and-512x512-png-sizes-categories-and-screenshots-if-possible",
+      "title": "Create a complete frontend/public/manifest.json with all required PWA fields: name, short_name, description, start_url, display (standalone), orientation, background_color, theme_color, icons array covering 72x72, 96x96, 128x128, 152x152, 192x192, 384x384, and 512x512 PNG sizes, categories, and screenshots if possible.",
       "reqIds": [
         "REQ-2"
       ],
+      "version": 1
+    },
+    {
+      "id": "feature-generate-and-place-all-required-pwa-icon-png-files-in-frontend-public-icons-for-sizes-72x72-96x96-128x128-152x152-192x192-384x384-and-512x512-also-generate-a-180x180-apple-touch-icon-png-placed-at-frontend-public-apple-touch-icon-png-reference-these-icons-correctly-in-manifest-json-and-index-html",
+      "title": "Generate and place all required PWA icon PNG files in frontend/public/icons/ for sizes: 72x72, 96x96, 128x128, 152x152, 192x192, 384x384, and 512x512. Also generate a 180x180 apple-touch-icon.png placed at frontend/public/apple-touch-icon.png. Reference these icons correctly in manifest.json and index.html.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-public-service-worker-js-to-implement-a-robust-production-ready-service-worker-with-correct-cache-versioning-pre-caching-of-all-static-assets-listed-in-a-manifest-a-cache-first-strategy-for-static-assets-a-network-first-strategy-for-api-calls-proper-install-and-activate-lifecycle-events-that-clean-up-old-caches-and-graceful-offline-fallback-to-the-cached-index-html-for-navigation-requests-ensure-the-draft-environment-bypass-logic-skipping-caching-on-draft-caffeine-xyz-is-preserved",
+      "title": "Rewrite frontend/public/service-worker.js to implement a robust, production-ready service worker with: correct cache versioning, pre-caching of all static assets listed in a manifest, a cache-first strategy for static assets, a network-first strategy for API calls, proper install and activate lifecycle events that clean up old caches, and graceful offline fallback to the cached index.html for navigation requests. Ensure the draft environment bypass logic (skipping caching on draft.caffeine.xyz) is preserved.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-service-worker-is-registered-correctly-in-frontend-index-html-or-the-app-entry-point-the-registration-should-only-run-in-production-not-on-draft-handle-registration-errors-gracefully-and-log-success-failure-to-the-console-use-navigator-serviceworker-register-service-worker-js-with-the-correct-scope",
+      "title": "Ensure the service worker is registered correctly in frontend/index.html or the app entry point. The registration should only run in production (not on draft), handle registration errors gracefully, and log success/failure to the console. Use navigator.serviceWorker.register('/service-worker.js') with the correct scope.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-ic-assets-json-to-ensure-service-worker-js-is-served-with-cache-control-no-cache-max-age-0-so-browsers-always-fetch-the-latest-version-while-all-other-static-assets-can-use-longer-cache-durations-appropriate-for-a-pwa",
+      "title": "Update frontend/.ic-assets.json to ensure service-worker.js is served with Cache-Control: no-cache, max-age=0 so browsers always fetch the latest version, while all other static assets can use longer cache durations appropriate for a PWA.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Make the app a fully working PWA (Progressive Web App) with complete manifest, service worker, and icon assets",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add next small batch of skills to the skill matrix",
+  "projectName": "CRYONEX",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

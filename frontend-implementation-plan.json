@@ -1,21 +1,113 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add next small batch of skills to the skill matrix",
+  "title": "Full PWA Setup with Manifest, Service Worker, and Icon Assets",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
+      "id": "REQ-1",
+      "summary": "Add complete PWA meta tags and manifest link to index.html",
       "acceptanceCriteria": [
-        "Newly added skills appear in the correct category group on the Skills page",
-        "Unlock requirements and status are displayed correctly for new skills",
-        "Existing skill display is not broken"
+        "index.html links to /manifest.json via <link rel='manifest'>",
+        "Apple PWA meta tags are present and correctly set",
+        "theme-color meta tag is present matching the app's theme color",
+        "viewport meta tag is present with width=device-width, initial-scale=1"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SkillsPage.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Review the current skill display implementation to ensure it properly handles the newly added backend skills. Verify that the listSkills() backend method is being called and that skills are correctly grouped by category. Ensure unlock status checking via the userProfile.unlockedSkills array works for any new skill IDs added to the backend. Confirm that skill requirements (minLevel and minStats) are displayed consistently for all skills including the new batch. No structural changes should be needed if the backend interface remains consistent."
+          "description": "Add PWA manifest link, Apple PWA meta tags (apple-mobile-web-app-capable, apple-mobile-web-app-status-bar-style, apple-mobile-web-app-title), theme-color meta tag matching the CRYONEX cyan/teal theme, and verify viewport meta tag is present and correctly configured for PWA usage."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Create complete PWA manifest.json with all required fields and icon references",
+      "acceptanceCriteria": [
+        "manifest.json is valid JSON and passes PWA manifest validation",
+        "All icon sizes from 72px to 512px are referenced in the manifest",
+        "display is set to 'standalone'",
+        "start_url, name, short_name, theme_color, and background_color are all present"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Rewrite manifest.json to include all required PWA fields: name ('CRYONEX'), short_name, description, start_url ('/'), display ('standalone'), orientation ('portrait'), background_color, theme_color (matching the app's cyan/teal theme), and a complete icons array covering sizes 72x72, 96x96, 128x128, 152x152, 192x192, 384x384, and 512x512 pointing to /icons/ subdirectory. Add categories array and include app_name field. Reference the generated icon files using their full workspace paths."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Wire generated PWA icon assets into manifest and index.html",
+      "acceptanceCriteria": [
+        "All icon files exist at the specified paths",
+        "manifest.json icons array references the correct paths and sizes",
+        "index.html includes <link rel='apple-touch-icon' href='/apple-touch-icon.png'>",
+        "Icons are visually consistent with the CRYONEX sci-fi theme"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Update the icons array to reference the generated icon files at frontend/public/assets/generated/icon-72.dim_72x72.png, frontend/public/assets/generated/icon-96.dim_96x96.png, frontend/public/assets/generated/icon-128.dim_128x128.png, frontend/public/assets/generated/icon-152.dim_152x152.png, frontend/public/assets/generated/icon-192.dim_192x192.png, frontend/public/assets/generated/icon-384.dim_384x384.png, and frontend/public/assets/generated/icon-512.dim_512x512.png. Use the path /assets/generated/<filename> in the manifest src fields."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add <link rel='apple-touch-icon' href='/assets/generated/apple-touch-icon.dim_180x180.png'> to reference the generated Apple touch icon at frontend/public/assets/generated/apple-touch-icon.dim_180x180.png."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Rewrite service worker with production-ready caching strategies and offline fallback",
+      "acceptanceCriteria": [
+        "Service worker installs and activates without errors",
+        "Static assets are pre-cached on install",
+        "Old caches are deleted on activate",
+        "Navigation requests fall back to cached index.html when offline",
+        "Draft environment bypasses all caching",
+        "No console errors related to the service worker on a fresh load"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/service-worker.js",
+          "operation": "modify",
+          "description": "Rewrite the service worker to implement a robust production-ready caching strategy with: versioned cache names using a CACHE_VERSION constant, a pre-caching manifest of all critical static assets (index.html, main CSS/JS bundles, manifest.json, icon files) in the install event, activation logic that deletes old caches by comparing cache names to the current version, a fetch handler with cache-first strategy for static assets (CSS, JS, images, fonts), network-first strategy for API calls to the backend canister, and a graceful offline fallback that serves cached index.html for navigation requests when the network is unavailable. Preserve the existing draft environment bypass logic (isDraftEnvironment check) to skip all caching when running on draft.caffeine.xyz."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Ensure service worker is registered correctly with production-only and error handling",
+      "acceptanceCriteria": [
+        "Service worker registration code is present and runs after page load",
+        "Registration is skipped on draft.caffeine.xyz environment",
+        "No uncaught errors from failed registration",
+        "Browser DevTools Application tab shows the service worker as active"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add or update the service worker registration script in a <script> tag at the end of <body>. Use navigator.serviceWorker.register('/service-worker.js') with the correct scope, wrapped in feature detection (if ('serviceWorker' in navigator)). Ensure registration only runs in production by checking for the draft environment (window.location.hostname.includes('draft.caffeine.xyz')) and skipping registration on draft. Add a DOMContentLoaded event listener to defer registration until after page load. Include try-catch error handling that logs registration success/failure to the console without breaking the app."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Update .ic-assets.json to serve service worker with no-cache headers",
+      "acceptanceCriteria": [
+        "service-worker.js has Cache-Control: no-cache in .ic-assets.json",
+        "manifest.json has appropriate cache headers",
+        "Icon files have appropriate long-lived cache headers"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/.ic-assets.json",
+          "operation": "modify",
+          "description": "Add or update a match rule for service-worker.js to set Cache-Control: no-cache, max-age=0 so browsers always fetch the latest version. Ensure manifest.json has a moderate cache duration (e.g., max-age=3600) and icon files in /assets/generated/ or /icons/ have long-lived cache headers (e.g., max-age=31536000) for optimal PWA performance."
         }
       ]
     }

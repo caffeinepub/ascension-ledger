@@ -121,21 +121,6 @@ export function AppLayout({ children, currentScreen, onNavigate }: AppLayoutProp
           </div>
         </main>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-3 sm:py-4 shrink-0" style={{ background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(12px)' }}>
-        <div className="container mx-auto px-4 text-center text-xs sm:text-sm text-white/75">
-          © {new Date().getFullYear()} · Built with ❤️ using{' '}
-          <a
-            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            caffeine.ai
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { LoginButton } from '../components/auth/LoginButton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Swords, TrendingUp, Zap, Shield } from 'lucide-react';
 import { COPY } from '../content/copy';
 
@@ -77,21 +77,6 @@ export function LandingPage() {
           </Card>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-6 sm:py-8" style={{ background: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(10px)' }}>
-        <div className="container mx-auto px-4 sm:px-6 text-center text-xs sm:text-sm text-white/75">
-          © {new Date().getFullYear()} · Built with love using{' '}
-          <a
-            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            caffeine.ai
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }

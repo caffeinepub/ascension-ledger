@@ -1,14 +1,9 @@
 <html lang='en'>
     <head>
         <meta charset='UTF-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, viewport-fit=cover' />
         <title>CRYONEX</title>
         <meta name='description' content='CRYONEX - Advanced progression tracking system with futuristic interface' />
-        
-        <!-- Cache Control for Draft Environment -->
-        <meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate' />
-        <meta http-equiv='Pragma' content='no-cache' />
-        <meta http-equiv='Expires' content='0' />
         
         <!-- Favicon -->
         <link rel='icon' type='image/png' sizes='192x192' href='/assets/generated/cryonex-icon-192.dim_192x192.png'>
@@ -19,12 +14,13 @@
         
         <!-- Theme Color -->
         <meta name='theme-color' content='#00D9FF'>
+        <meta name='msapplication-TileColor' content='#0a0a0f'>
         
         <!-- Apple PWA Meta Tags -->
         <meta name='apple-mobile-web-app-capable' content='yes'>
         <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent'>
         <meta name='apple-mobile-web-app-title' content='CRYONEX'>
-        <link rel='apple-touch-icon' href='/assets/generated/cryonex-icon-512.dim_512x512.png'>
+        <link rel='apple-touch-icon' href='/assets/generated/apple-touch-icon.dim_180x180.png'>
         
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,5 +30,29 @@
     <body>
         <div id='root'></div>
         <script type='module' src='/src/main.tsx'></script>
+
+        <!-- Service Worker Registration -->
+        <script>
+          if ('serviceWorker' in navigator) {
+            var isDraft = window.location.hostname === 'draft.caffeine.xyz' ||
+                          window.location.hostname.includes('draft.caffeine');
+            if (!isDraft) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+                  .then(function(registration) {
+                    console.log('[App] Service Worker registered, scope:', registration.scope);
+                  })
+                  .catch(function(error) {
+                    console.warn('[App] Service Worker registration failed:', error);
+                  });
+              });
+            } else {
+              // On draft: unregister any existing service workers to avoid stale caches
+              navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                registrations.forEach(function(reg) { reg.unregister(); });
+              });
+            }
+          }
+        </script>
     </body>
 </html>

@@ -1,31 +1,50 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T18:03:59.553Z",
-  "summary": "The diff shows modifications to backend/main.mo and project_state.json, but the content is truncated and the new discipline skills cannot be fully verified. More critically, the frontend SkillsPage.tsx file is not present in the diff at all, meaning REQ-2 appears unimplemented. The project_state.json still lists both AR-1 and AR-2 as 'pending', further suggesting neither requirement was completed.",
+  "generatedAt": "2026-03-01T18:45:01.431Z",
+  "summary": "The diff implements most PWA requirements including index.html meta tags, manifest.json, service worker, service worker registration, and ic-assets.json cache headers. However, REQ-3 specifies icons must be placed in frontend/public/icons/ and apple-touch-icon.png at frontend/public/apple-touch-icon.png, but the implementation places them in assets/generated/ with different filenames. The apple-touch-icon link in index.html also points to /assets/generated/apple-touch-icon.dim_180x180.png instead of /apple-touch-icon.png.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Add a small batch of discipline skills (no more than 5 at a time) to the backend skill matrix in main.mo, continuing from where the previous batch left off. Each skill should include all required fields (id, name, description, category, stat requirements, level requirement, unlock status defaults).",
-      "reason": "The backend/main.mo diff is truncated and no new discipline skill entries with all required fields are visible in the shown content. The project_state.json also marks this as pending.",
+      "id": "REQ-3",
+      "requirement": "Icon PNG files must be placed in frontend/public/icons/ for sizes 72x72 through 512x512, and apple-touch-icon.png at frontend/public/apple-touch-icon.png. index.html must include <link rel='apple-touch-icon' href='/apple-touch-icon.png'>.",
+      "reason": "Icons are referenced from /assets/generated/ paths rather than frontend/public/icons/. The apple-touch-icon link in index.html points to /assets/generated/apple-touch-icon.dim_180x180.png instead of /apple-touch-icon.png. No evidence of files being added to frontend/public/icons/ or frontend/public/apple-touch-icon.png.",
       "evidence": [
-        "backend/main.mo",
-        "project_state.json"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Update the frontend SkillsPage.tsx to display the newly added batch of skills, grouped by category and showing unlock status and requirements consistently with existing skill entries.",
-      "reason": "The frontend SkillsPage.tsx file is entirely absent from the diff. No frontend changes were made. The project_state.json also marks this as pending.",
-      "evidence": [
-        "project_state.json"
+        "frontend/index.html",
+        "frontend/public/manifest.json"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.75,
+  "hallucinated_features": [
+    {
+      "description": "Stale-while-revalidate strategy for ICP/API requests instead of network-first",
+      "reason": "REQ-4 specifies a network-first strategy for API calls, but the service worker implements a stale-while-revalidate approach for API/canister requests.",
+      "evidence": [
+        "frontend/public/service-worker.js"
+      ]
+    },
+    {
+      "description": "Additional cache entries for cryonex-icon-192 and cryonex-icon-512 variants in ic-assets.json and manifest.json",
+      "reason": "These extra icon files were not requested in the build request image requirements or REQ-2/REQ-3.",
+      "evidence": [
+        "frontend/.ic-assets.json",
+        "frontend/public/manifest.json"
+      ]
+    },
+    {
+      "description": "On-draft service worker unregistration logic in index.html",
+      "reason": "The build request only requires skipping registration on draft; actively unregistering existing service workers was not requested.",
+      "evidence": [
+        "frontend/index.html"
+      ]
+    }
+  ],
+  "confidence": 0.78,
   "changed_files": [
-    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/.ic-assets.json",
+    "frontend/index.html",
+    "frontend/public/manifest.json",
+    "frontend/public/service-worker.js",
     "project_state.json"
   ]
 }
